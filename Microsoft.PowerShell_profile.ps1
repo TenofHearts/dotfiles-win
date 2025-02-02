@@ -1,4 +1,4 @@
-oh-my-posh init pwsh --config 'C:\Program Files (x86)\oh-my-posh\themes\byml.omp.json' | Invoke-Expression
+oh-my-posh init pwsh --config '$env:POSH_THEMES_PATH\byml.omp.json' | Invoke-Expression
 # Import the Chocolatey Profile that contains the necessary code to enable
 # tab-completions to function for `choco`.
 # Be aware that if you are missing these lines from your profile, tab completion
