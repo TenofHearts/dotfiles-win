@@ -11,19 +11,19 @@ if (Test-Path($ChocolateyProfile)) {
 fnm env --use-on-cd | Out-String | Invoke-Expression
 
 function ga{
-	git add
+	git add @args
 }
 function gca{
-	git commit -a
+	git commit -a @args
 }
-function gps{
-	git push
+function gpu{
+	git push @args
 }
 function gpl{
-	git pull
+	git pull @args
 }
 function glg{
-	git log --graph --decorate
+	git log --graph --decorate @args
 } 
 
-Set-Alias ll ls
+Set-Alias ll ls 
