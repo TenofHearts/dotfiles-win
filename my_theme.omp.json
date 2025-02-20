@@ -72,19 +72,19 @@
                     "trailing_diamond": "\ue0b0",
                     "template": " \ue235 {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }}  ",
                     "foreground": "#f2f3f8",
-                    "background": "#793a9b",
+                    "background": "#ef9cd1",
                     "type": "python",
                     "style": "diamond"
                 },
                 {
-                    "background": "lightCyan",
+                    "background": "#ebb86b",
                     "foreground": "#fff",
                     "leading_diamond": "<transparent,background>\ue0b0</>",
                     "properties": {
                         "branch_icon": ""
                     },
                     "style": "diamond",
-                    "template": " git({{ .HEAD }}) ",
+                    "template": "<#ffffff> on</> {{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} \uf044  {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046  {{ .Staging.String }}{{ end }} ",
                     "trailing_diamond": "\ue0b0",
                     "type": "git"
                 }
