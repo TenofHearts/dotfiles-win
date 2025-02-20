@@ -106,7 +106,7 @@
                         "windows": "\ue70f"
                     },
                     "template": " {{ .Icon }} ",
-                    "foreground": "#f2f3f8",
+                    "foreground": "#94d479",
                     "type": "os",
                     "style": "plain"
                 },
@@ -115,7 +115,7 @@
                         "cache_duration": "none"
                     },
                     "template": "{{ if .Root }}#{{else}}>{{end}}",
-                    "foreground": "#f2f3f8",
+                    "foreground": "#94d479",
                     "type": "text",
                     "style": "plain"
                 }
