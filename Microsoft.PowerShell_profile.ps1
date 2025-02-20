@@ -25,5 +25,11 @@ function gpl {
 function glg {
     git log --graph --decorate @args
 } 
+function cact {
+    conda activate @args
+}
+function cdac {
+    conda deactivate
+}
 
 Set-Alias ll ls 
