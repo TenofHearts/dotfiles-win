@@ -54,40 +54,15 @@
             "segments": [
                 {
                     "properties": {
-                        "alpine": "\uf300",
-                        "arch": "\uf303",
-                        "cache_duration": "none",
-                        "centos": "\uf304",
-                        "debian": "\uf306",
-                        "elementary": "\uf309",
-                        "fedora": "\uf30a",
-                        "gentoo": "\uf30d",
-                        "linux": "\ue712",
-                        "macos": "\ue711",
-                        "manjaro": "\uf312",
-                        "mint": "\uf30f",
-                        "opensuse": "\uf314",
-                        "raspbian": "\uf315",
-                        "ubuntu": "\uf31c",
-                        "windows": "\ue70f"
-                    },
-                    "leading_diamond": "\ue0b2",
-                    "template": " {{ .Icon }} ",
-                    "foreground": "#f2f3f8",
-                    "background": "#e46a3d",
-                    "type": "os",
-                    "style": "diamond"
-                },
-                {
-                    "properties": {
                         "cache_duration": "none"
                     },
+                    "leading_diamond": "\ue0b2",
                     "template": " Hi, {{ .UserName }} ",
                     "foreground": "#f2f3f8",
-                    "powerline_symbol": "\ue0b0",
+                    "trailing_diamond": "\ue0b0",
                     "background": "#a364b1",
                     "type": "session",
-                    "style": "powerline"
+                    "style": "diamond"
                 },
                 {
                     "properties": {
@@ -113,9 +88,33 @@
             "segments": [
                 {
                     "properties": {
+                        "alpine": "\uf300",
+                        "arch": "\uf303",
+                        "cache_duration": "none",
+                        "centos": "\uf304",
+                        "debian": "\uf306",
+                        "elementary": "\uf309",
+                        "fedora": "\uf30a",
+                        "gentoo": "\uf30d",
+                        "linux": "\ue712",
+                        "macos": "\ue711",
+                        "manjaro": "\uf312",
+                        "mint": "\uf30f",
+                        "opensuse": "\uf314",
+                        "raspbian": "\uf315",
+                        "ubuntu": "\uf31c",
+                        "windows": "\ue70f"
+                    },
+                    "template": " {{ .Icon }} ",
+                    "foreground": "#f2f3f8",
+                    "type": "os",
+                    "style": "plain"
+                },
+                {
+                    "properties": {
                         "cache_duration": "none"
                     },
-                    "template": "{{ if .Root }} #{{else}} >{{end}}",
+                    "template": "{{ if .Root }}#{{else}}>{{end}}",
                     "foreground": "#f2f3f8",
                     "type": "text",
                     "style": "plain"
