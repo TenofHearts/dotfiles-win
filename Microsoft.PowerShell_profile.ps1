@@ -36,5 +36,5 @@ Set-Alias ll ls
 
 function ag {
 	conda activate Recreation
-	python -u "d:\Programming\shell_ai\ai.py"
+	python -u $env:AG_PATH"\\ai.py"
 }
