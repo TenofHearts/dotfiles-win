@@ -41,7 +41,7 @@
                     "properties": {
                         "fetch_status": true,
                         "icons": {
-                            "commit_icon": ""
+                            "commit_icon": "\uf418"
                         }
                     },
                     "style": "diamond",
