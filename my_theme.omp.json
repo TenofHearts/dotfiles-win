@@ -35,7 +35,7 @@
                     "foreground": "#585858",
                     "background_templates": [
                         "{{ if or (.Working.Changed) (.Staging.Changed) }}#c1dda8{{ end }}",
-                        "{{ if gt .Ahead 0 }}#e3e4a7{{ end }}",
+                        "{{ if gt .Ahead 0 }}#cadefc{{ end }}",
                         "{{ if gt .Behind 0 }}#cf827c{{ end }}"
                     ],
                     "properties": {
