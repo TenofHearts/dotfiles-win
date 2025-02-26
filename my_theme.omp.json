@@ -31,12 +31,11 @@
                     "style": "diamond"
                 },
                 {
-                    "background": "#b378bc",
                     "foreground": "#585858",
                     "background_templates": [
                         "{{ if or (.Working.Changed) (.Staging.Changed) }}#c1dda8{{ end }}",
                         "{{ if and (gt .Ahead 0) (gt .Behind 0) }}#f3e8cb{{ end }}",
-                        "{{ if gt .Ahead 0 }}#b378bc{{ end }}",
+                        "{{ if gt .Ahead 0 }}#c1d294{{ end }}",
                         "{{ if gt .Behind 0 }}#cf827c{{ end }}"
                     ],
                     "properties": {
