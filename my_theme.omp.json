@@ -86,6 +86,19 @@
                     "style": "diamond"
                 },
                 {
+                    "type": "battery",
+                    "style": "diamond",
+                    "trailing_diamond": "",
+                    "foreground": "#e0d7c6",
+                    "background": "#88304e",
+                    "template": " Battery: {{ if not .Error }}{{ .Icon }} {{ .Percentage }}{{ end }}  ",
+                    "properties": {
+                        "discharging_icon": " ",
+                        "charging_icon": " ",
+                        "charged_icon": " "
+                    }
+                },
+                {
                     "properties": {
                         "cache_duration": "none",
                         "folder_icon": "\u2026",
