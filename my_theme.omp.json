@@ -31,7 +31,7 @@
                     "style": "diamond"
                 },
                 {
-                    "background": "#d2cd94",
+                    "background": "#f3e8cb",
                     "foreground": "#585858",
                     "background_templates": [
                         "{{ if or (.Working.Changed) (.Staging.Changed) }}#c1dda8{{ end }}",
