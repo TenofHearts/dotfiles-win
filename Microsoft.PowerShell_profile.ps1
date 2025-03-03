@@ -35,6 +35,6 @@ function cdac {
 Set-Alias ll ls 
 
 function ag {
-	conda activate Recreation
+	conda activate ag
 	python -u $env:AG_PATH"\\ai.py"
 }
