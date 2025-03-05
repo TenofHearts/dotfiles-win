@@ -36,5 +36,5 @@ Set-Alias ll ls
 
 function ag {
 	conda activate ag
-	python -u $env:AG_PATH"\\ai.py"
+	python -u $env:AG_PATH"\\ag.py"
 }
