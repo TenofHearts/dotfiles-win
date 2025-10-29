@@ -34,11 +34,10 @@ function cdac {
 
 Set-Alias ll ls 
 
-function ag {
-	conda activate ag
-	python -u $env:AG_PATH"\\ag.py"
-}
-#f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
+Set-Alias which where.exe
 
-Import-Module -Name Microsoft.WinGet.CommandNotFound
-#f45873b3-b655-43a6-b217-97c00aa0db58
+function ag {
+    conda activate ag
+    python -u $env:AG_PATH"\\ag.py"
+}
+
