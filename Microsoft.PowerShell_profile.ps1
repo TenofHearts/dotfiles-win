@@ -41,3 +41,5 @@ function ag {
     python -u $env:AG_PATH"\\ag.py"
 }
 
+(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
+(& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
