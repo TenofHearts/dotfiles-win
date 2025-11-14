@@ -45,3 +45,6 @@ function ag {
 (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
 
 $env:VIRTUAL_ENV_DISABLE_PROMPT = "1"
+
+$env:UV_CACHE_DIR = "D:\Program\uv\cache"
+$env:UV_PYTHON_INSTALL_DIR = "D:\Program\uv\python"
