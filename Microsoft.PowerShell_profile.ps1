@@ -48,3 +48,13 @@ $env:VIRTUAL_ENV_DISABLE_PROMPT = "1"
 
 $env:UV_CACHE_DIR = "D:\Program\uv\cache"
 $env:UV_PYTHON_INSTALL_DIR = "D:\Program\uv\python"
+
+function uvac {
+    # Activate the virtual environment in the current directory
+    # Check if the .venv folder exists in the current directory
+    if (-Not (Test-Path -Path ".venv")) {
+        Write-Host ".venv folder does not exist in the current directory." -ForegroundColor Red
+        return
+    }
+    .venv\Scripts\activate
+}
