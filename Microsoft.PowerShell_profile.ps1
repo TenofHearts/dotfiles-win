@@ -58,9 +58,10 @@ function uvac {
 }
 
 function uvi {
+    $hadMainPy = Test-Path -LiteralPath "main.py"
     uv init --no-readme @args
-    if (Test-Path -LiteralPath "hello.py") {
-        Remove-Item -LiteralPath "hello.py" -Force
+    if (-Not $hadMainPy -and (Test-Path -LiteralPath "main.py")) {
+        Remove-Item -LiteralPath "main.py" -Force
     }
 }
 
