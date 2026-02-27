@@ -72,3 +72,28 @@ function uva {
 function uvr {
     uv run @args
 }
+
+function cg {
+    cargo @args
+}
+function cgi {
+    cargo init @args --vsc none
+}
+function cgn {
+    cargo new @args --vsc none
+}
+function cgb {
+    cargo build @args
+}
+function cgbr {
+    cargo build --release @args
+}
+function cgr {
+    cargo run @args
+}
+function cgrr {
+    cargo run --release @args
+}
+function cga {
+    cargo add @args
+}
