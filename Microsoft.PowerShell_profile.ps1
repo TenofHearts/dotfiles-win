@@ -48,6 +48,8 @@ $env:VIRTUAL_ENV_DISABLE_PROMPT = "1"
 
 $env:UV_CACHE_DIR = "D:\Program\uv\cache"
 $env:UV_PYTHON_INSTALL_DIR = "D:\Program\uv\python"
+$env:UV_TOOL_DIR = "D:\Program\uv\tools"
+$env:UV_TOOL_BIN_DIR = "D:\Program\uv\tools-bin"
 
 function uvac {
     if (-Not (Test-Path -Path ".venv")) {
