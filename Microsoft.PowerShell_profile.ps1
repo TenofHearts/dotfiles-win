@@ -8,6 +8,7 @@ $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
+$env:FNM_DIR = "D:\Program\fnm"
 fnm env --use-on-cd | Out-String | Invoke-Expression
 
 function ga {
