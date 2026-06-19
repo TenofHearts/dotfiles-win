@@ -37,11 +37,6 @@ Set-Alias ll ls
 
 Set-Alias which where.exe
 
-function ag {
-    conda activate ag
-    python -u $env:AG_PATH"\\ag.py"
-}
-
 (& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
 (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
 
@@ -62,7 +57,7 @@ function uvac {
 
 function uvi {
     $hadMainPy = Test-Path -LiteralPath "main.py"
-    uv init --no-readme @args
+    uv init --no-readme --vcs none @args
     if (-Not $hadMainPy -and (Test-Path -LiteralPath "main.py")) {
         Remove-Item -LiteralPath "main.py" -Force
     }
