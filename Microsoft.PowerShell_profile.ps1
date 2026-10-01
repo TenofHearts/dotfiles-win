@@ -75,10 +75,10 @@ function cg {
     cargo @args
 }
 function cgi {
-    cargo init @args --vsc none
+    cargo init @args --vcs none
 }
 function cgn {
-    cargo new @args --vsc none
+    cargo new @args --vcs none
 }
 function cgb {
     cargo build @args
