@@ -1,4 +1,16 @@
-oh-my-posh init pwsh --config $env:POSH_THEMES_PATH'\my_theme.omp.json' | Invoke-Expression
+$dotfilesProfileFile = Get-Item -LiteralPath $PSCommandPath -Force
+$dotfilesProfileDirectory = $PSScriptRoot
+if ($dotfilesProfileFile.LinkType -eq 'SymbolicLink') {
+    $dotfilesProfileDirectory = Split-Path ($dotfilesProfileFile.ResolveLinkTarget($true).FullName) -Parent
+}
+$dotfilesRoot = Split-Path (Split-Path $dotfilesProfileDirectory -Parent) -Parent
+$localProfile = Join-Path $HOME '.config/powershell/profile.local.ps1'
+# Load private paths before initializing tools.
+if (Test-Path -LiteralPath $localProfile) { . $localProfile }
+$env:VIRTUAL_ENV_DISABLE_PROMPT = '1'
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    oh-my-posh init pwsh --config (Join-Path $dotfilesRoot 'config/oh-my-posh/theme.omp.json') | Invoke-Expression
+}
 # Import the Chocolatey Profile that contains the necessary code to enable
 # tab-completions to function for `choco`.
 # Be aware that if you are missing these lines from your profile, tab completion
@@ -8,8 +20,10 @@ $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
-$env:FNM_DIR = "D:\Program\fnm"
-fnm env --use-on-cd | Out-String | Invoke-Expression
+if (-not $env:FNM_DIR) { $env:FNM_DIR = "D:\Program\fnm" }
+if (Get-Command fnm -ErrorAction SilentlyContinue) {
+    fnm env --use-on-cd | Out-String | Invoke-Expression
+}
 
 function ga {
     git add @args
@@ -37,15 +51,19 @@ Set-Alias ll ls
 
 Set-Alias which where.exe
 
-(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
-(& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
+if (Get-Command uv -ErrorAction SilentlyContinue) {
+    (& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
+}
+if (Get-Command uvx -ErrorAction SilentlyContinue) {
+    (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
+}
 
 $env:VIRTUAL_ENV_DISABLE_PROMPT = "1"
 
-$env:UV_CACHE_DIR = "D:\Program\uv\cache"
-$env:UV_PYTHON_INSTALL_DIR = "D:\Program\uv\python"
-$env:UV_TOOL_DIR = "D:\Program\uv\tools"
-$env:UV_TOOL_BIN_DIR = "D:\Program\uv\tools-bin"
+if (-not $env:UV_CACHE_DIR) { $env:UV_CACHE_DIR = "D:\Program\uv\cache" }
+if (-not $env:UV_PYTHON_INSTALL_DIR) { $env:UV_PYTHON_INSTALL_DIR = "D:\Program\uv\python" }
+if (-not $env:UV_TOOL_DIR) { $env:UV_TOOL_DIR = "D:\Program\uv\tools" }
+if (-not $env:UV_TOOL_BIN_DIR) { $env:UV_TOOL_BIN_DIR = "D:\Program\uv\tools-bin" }
 
 function uvac {
     if (-Not (Test-Path -Path ".venv")) {

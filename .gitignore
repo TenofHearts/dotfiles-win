@@ -1,0 +1,3 @@
+# Private overrides and local verification output
+*.local.ps1
+.test-output/
