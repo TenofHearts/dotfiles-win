@@ -1,0 +1,10 @@
+# Portable preferences. Identity, credentials, proxies and paths stay local.
+[init]
+    defaultBranch = main
+[fetch]
+    prune = true
+[core]
+    pager = less
+[alias]
+    st = status -sb
+    last = log -1 --stat

@@ -1,0 +1,39 @@
+# Operating system and editor leftovers
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Python virtual environments and generated files
+.venv/
+venv/
+env/
+.conda/
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+
+# Local agent working directories; shared instruction files remain trackable
+.codex/
+.claude/
+.gemini/
+.agents/
+.aider.tags.cache.v*/
+.aider.chat.history.md
+.aider.input.history
