@@ -138,7 +138,7 @@ the punctuation key `oem_semicolon`. Release modifiers before pressing mode keys
 | Command sequence | Action |
 | --- | --- |
 | `Alt+Shift+;`, then `h` | Exit command mode and open the [HTML shortcut guide](config/glazewm/help.html) in the system default browser. |
-| `Alt+Shift+;`, then `m` | Move mode: `h/j/k/l` move the window; `1–9` move it to a workspace and follow it while staying in Move. |
+| `Alt+Shift+;`, then `m` | Move mode: `h/j/k/l` move the window; `Shift+h/j/k/l` move the workspace to the display left/down/up/right; `1–9` move the window to a workspace and follow it while staying in Move. |
 | `Alt+Shift+;`, then `r` | Adjust mode: resize and change window states. Stay active until Escape or Enter. |
 | In Move: `v` | Toggle the split around the focused tile. Prepare the destination tile, then move an existing window into it with `h/j/k/l`. |
 | `Alt+Shift+;`, then `a`, then `r` | Reload configuration and exit. |
