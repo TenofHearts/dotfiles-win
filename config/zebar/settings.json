@@ -2,8 +2,18 @@
   "$schema": "https://github.com/glzr-io/zebar/raw/v3.1.1/resources/settings-schema.json",
   "startupConfigs": [
     {
-      "pack": "glzr-io.starter",
-      "widget": "with-glazewm",
+      "widget": "mode",
+      "pack": "dotfiles-neosoft",
+      "preset": "default"
+    },
+    {
+      "widget": "workspaces",
+      "pack": "dotfiles-neosoft",
+      "preset": "default"
+    },
+    {
+      "widget": "status",
+      "pack": "dotfiles-neosoft",
       "preset": "default"
     }
   ]

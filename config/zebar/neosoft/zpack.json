@@ -1,0 +1,135 @@
+{
+  "$schema": "https://github.com/glzr-io/zebar/raw/v3.1.1/resources/zpack-schema.json",
+  "name": "dotfiles-neosoft",
+  "version": "1.2.8",
+  "description": "Compact Neosoft widgets with read-only connection details",
+  "repositoryUrl": "https://github.com/blaiyz/neosoft-zebar",
+  "widgets": [
+    {
+      "shownInTaskbar": false,
+      "htmlPath": "./index.html",
+      "resizable": false,
+      "presets": [
+        {
+          "height": "44px",
+          "offsetY": "0px",
+          "dockToEdge": {
+            "enabled": false,
+            "windowMargin": "0px",
+            "edge": "top"
+          },
+          "offsetX": "4px",
+          "width": "320px",
+          "name": "default",
+          "monitorSelection": {
+            "type": "all"
+          },
+          "anchor": "top_left"
+        }
+      ],
+      "privileges": {
+        "shellCommands": [
+          {
+            "program": "powershell.exe",
+            "argsRegex": "^-NoProfile -NonInteractive -ExecutionPolicy Bypass -File .*connection-info\\.ps1$"
+          }
+        ]
+      },
+      "zOrder": "top_most",
+      "focused": false,
+      "name": "mode",
+      "includeFiles": [
+        "**"
+      ],
+      "transparent": true,
+      "caching": {
+        "defaultDuration": 0,
+        "rules": []
+      }
+    },
+    {
+      "shownInTaskbar": false,
+      "htmlPath": "./index.html",
+      "resizable": false,
+      "presets": [
+        {
+          "height": "44px",
+          "offsetY": "0px",
+          "dockToEdge": {
+            "enabled": false,
+            "windowMargin": "0px",
+            "edge": "top"
+          },
+          "offsetX": "0px",
+          "width": "320px",
+          "name": "default",
+          "monitorSelection": {
+            "type": "all"
+          },
+          "anchor": "top_center"
+        }
+      ],
+      "privileges": {
+        "shellCommands": [
+          {
+            "program": "powershell.exe",
+            "argsRegex": "^-NoProfile -NonInteractive -ExecutionPolicy Bypass -File .*connection-info\\.ps1$"
+          }
+        ]
+      },
+      "zOrder": "top_most",
+      "focused": false,
+      "name": "workspaces",
+      "includeFiles": [
+        "**"
+      ],
+      "transparent": true,
+      "caching": {
+        "defaultDuration": 0,
+        "rules": []
+      }
+    },
+    {
+      "shownInTaskbar": false,
+      "htmlPath": "./index.html",
+      "resizable": false,
+      "presets": [
+        {
+          "height": "44px",
+          "offsetY": "0px",
+          "dockToEdge": {
+            "enabled": false,
+            "windowMargin": "0px",
+            "edge": "top"
+          },
+          "offsetX": "-4px",
+          "width": "320px",
+          "name": "default",
+          "monitorSelection": {
+            "type": "all"
+          },
+          "anchor": "top_right"
+        }
+      ],
+      "privileges": {
+        "shellCommands": [
+          {
+            "program": "powershell.exe",
+            "argsRegex": "^-NoProfile -NonInteractive -ExecutionPolicy Bypass -File .*connection-info\\.ps1$"
+          }
+        ]
+      },
+      "zOrder": "top_most",
+      "focused": false,
+      "name": "status",
+      "includeFiles": [
+        "**"
+      ],
+      "transparent": true,
+      "caching": {
+        "defaultDuration": 0,
+        "rules": []
+      }
+    }
+  ]
+}

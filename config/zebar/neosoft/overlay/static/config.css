@@ -1,0 +1,31 @@
+:root {
+  color-scheme: light dark;
+  --font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+  --font-size: 13px;
+  --font-weight: 500;
+  --radius: 7px;
+  --text: 220 20% 92%; --accent: 213 95% 70%; --bg: 220 20% 13%;
+  --muted: 220 10% 60%; --border: 220 15% 30%; --shadow: 220 20% 5%;
+  --battery-good: 220 20% 92%; --battery-mid: 40 85% 65%; --battery-low: 0 80% 70%;
+  --ws-1: var(--text); --ws-2: var(--text); --ws-3: var(--text); --ws-4: var(--text); --ws-5: var(--text);
+  --surface: rgba(28,32,40,.90); --ink: #e9edf5; --dim: #929ba9; --blue: #80b6ff; --line: rgba(160,175,200,.18); --chip: rgba(155,165,185,.15);
+}
+@media (prefers-color-scheme: light) {
+  :root { --text: 220 25% 18%; --accent: 215 80% 45%; --border: 220 15% 80%; --battery-good: var(--text);
+    --surface: rgba(249,250,253,.90); --ink: #283244; --dim: #798395; --blue: #2563d1; --line: rgba(70,85,110,.17); --chip: rgba(100,115,145,.13); }
+}
+html,body { margin:0; background:transparent; font-family:var(--font-family);color:var(--ink); }
+.pill-wrap {display:flex;flex-direction:column;align-items:flex-start;padding:4px;gap:8px;width:100%;}
+.pill-wrap.status {align-items:flex-end;}
+.pill-wrap.workspaces {align-items:center;}
+.pill {width:max-content;height:36px;padding:0 10px;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:0 2px 4px rgba(0,0,0,.12);white-space:nowrap;}
+.mode-label {font-weight:600;} .mode-dot {height:6px;width:6px;border-radius:50%;background:var(--dim);margin-right:3px;} .mode-dot.active {background:var(--blue);}
+.info-button {display:flex;align-items:center;gap:3px;height:26px;min-width:24px;justify-content:center;border:0;border-radius:6px;background:transparent;color:var(--dim);padding:0 3px;cursor:pointer;}
+.info-button:hover,.info-button:focus-visible {background:var(--chip);outline:1px solid var(--line);} .volume {color:var(--ink);}
+.info-button svg {width:15px!important;height:15px!important;margin:0!important;}
+.connected {color:var(--blue);} .muted {color:var(--dim);} .separator {height:14px;width:1px;background:var(--line);margin:0 3px;}
+.tabular {font-variant-numeric:tabular-nums;} .clock {font-weight:600;} .battery {display:flex;align-items:center;gap:4px;} .battery svg {width:17px!important;height:17px!important;} .battery .h-8 {height:24px;} .battery .meter-percent {display:none;}
+.workspace-buttons {display:flex;align-items:center;gap:4px;} .workspace-chip button {min-width:26px!important;height:26px!important;padding:0 6px!important;aspect-ratio:auto!important;color:var(--dim)!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:6px!important;}
+.workspace-chip.displayed button {color:var(--ink)!important;background:var(--chip)!important;} .workspace-chip.focused button {color:var(--blue)!important;background:color-mix(in srgb,var(--blue) 17%,transparent)!important;} .workspace-chip button:hover {background:var(--chip)!important;}
+.dropdown {width:300px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:0 2px 4px rgba(0,0,0,.12);overflow:auto;max-height:350px;}
+.dropdown.closed {display:none;} .dropdown h2 {font-size:14px;font-weight:600;margin:0 0 3px;} .dropdown p {font-size:12px;margin:0 0 8px;} .detail-row {display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:12px;} .detail-row span:first-child {overflow-wrap:anywhere;}

@@ -122,8 +122,7 @@ with a file symlink. Only the YAML is shared; the surrounding directory and runt
 logs stay local. `-GlazeWMPath` takes a config file path. Install GlazeWM separately.
 File symlink creation requires Windows Developer Mode or an elevated PowerShell
 session. Existing config files are preserved in timestamped sibling backups with
-restore manifests. The imported settings are unchanged; workflow customization
-comes next. The current config starts Zebar, so install it too for the starter bar.
+restore manifests. The config uses the modal workflow described below and starts Zebar for the compact bar.
 ```powershell
 .\scripts\glazewm.ps1 -Action install -DryRun
 .\scripts\glazewm.ps1 -Action install
@@ -132,21 +131,21 @@ comes next. The current config starts Zebar, so install it too for the starter b
 .\scripts\glazewm.ps1 -Action restore -Manifest '<glazewm-manifest-path>'
 ```
 
-GlazeWM uses modal shortcuts inspired by Vim and i3. Normal operation reserves
-only `Alt+H/J/K/L` for focus, `Alt+1` through `Alt+9` for workspaces, and
-`Alt+Shift+;` (Alt plus colon on a US keyboard) for command mode. The YAML names
+GlazeWM uses modal shortcuts inspired by Vim and i3. Normal operation reserves `Alt+H/J/K/L` for focus, `Alt+1` through `Alt+9` for workspaces, and
+`Alt+Shift+;` (Alt plus colon on a US keyboard) for command mode, plus `Alt+M` to minimize and `Alt+Q` to close. The YAML names
 the punctuation key `oem_semicolon`. Release modifiers before pressing mode keys.
 
 | Command sequence | Action |
 | --- | --- |
-| `Alt+Shift+;`, then `m` | Move mode: `h/j/k/l` move the window; `1–9` move it to a workspace, follow it, and exit. |
-| `Alt+Shift+;`, then `r` | Resize mode: `h/l` decrease/increase width; `j/k` decrease/increase height by 2%. |
-| `Alt+Shift+;`, then `l`, then `v` | Toggle tiling direction and exit. |
-| `Alt+Shift+;`, then `s` | Window state: `t` sets tiled, `f` toggles fullscreen, `Space` toggles floating; each exits. |
+| `Alt+Shift+;`, then `h` | Exit command mode and open the [HTML shortcut guide](config/glazewm/help.html) in the system default browser. |
+| `Alt+Shift+;`, then `m` | Move mode: `h/j/k/l` move the window; `1–9` move it to a workspace and follow it while staying in Move. |
+| `Alt+Shift+;`, then `r` | Adjust mode: resize and change window states. Stay active until Escape or Enter. |
+| In Move: `v` | Toggle the split around the focused tile. Prepare the destination tile, then move an existing window into it with `h/j/k/l`. |
 | `Alt+Shift+;`, then `a`, then `r` | Reload configuration and exit. |
 | `Alt+Shift+;`, then `a`, then `p` | Pause management; stay in admin mode, press `p` again to resume, then exit. |
 
-`Escape` or `Enter` exits any mode when management is active. Move and resize
+`Alt+H/J/K/L` changes focus and `Alt+1–9` switches workspaces in every mode while management is active. `Alt+M` minimizes and `Alt+Q` closes in every mode.
+`Escape` or `Enter` exits any mode when management is active. Move and Adjust
 modes persist for repeated adjustments; exit before typing in an application.
 The entry shortcut returns from a submode to command mode, or closes command
 mode if already there. While paused, use `p` to resume before using other keys.
@@ -171,7 +170,22 @@ a timestamped sibling backup with a restore manifest.
 .\scripts\zebar.ps1 -Action restore -Manifest '<zebar-manifest-path>'
 ```
 
-Restart Zebar after editing or pulling settings; no reapplication is needed.
-The current settings select the `glzr-io.starter` pack's `with-glazewm` widget and
-`default` preset. On another machine, install that pack through Zebar's marketplace;
-setup does not download it. Keep the checkout in a stable location.
+The compact bar reuses Neosoft's workspace, battery, volume and provider code.
+Three content-sized pills show mode at the left, assigned workspaces at the center,
+and clock, battery and compact volume/Wi-Fi/Bluetooth icons at the right on each
+monitor. Colors follow the Windows light/dark preference. Device and network names
+appear only in read-only dropdowns.
+
+Install Node.js 22+ and build the pinned pack after cloning or pulling:
+
+```powershell
+.\scripts\zebar.ps1 -Action install
+.\scripts\zebar.ps1 -Action status
+```
+
+`install.ps1` includes this step unless `-SkipZebar` is set. Restart Zebar after
+installation. Upstream source and dependencies stay local under `.test-output/`;
+the generated pack stays in `~/.glzr/zebar/dotfiles-neosoft`. Git tracks only our
+adaptations, configuration, upstream revision/checksum and dependency lockfile.
+Downloaded marketplace packs are untouched. See
+[the Neosoft setup guide](config/zebar/neosoft/README.md) for details and rollback.
