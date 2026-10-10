@@ -119,6 +119,32 @@ Run `./tests/configs.ps1` to verify Git and Terminal installation, local overrid
 
 GlazeWM organizes windows through modal shortcuts inspired by Vim and i3. Everyday shortcuts handle focus and workspaces, while dedicated modes handle moving, joining, and resizing windows. Focus follows the cursor across monitors, and system dialogs keep their native behavior. See the [shortcut guide](config/glazewm/help.html) for controls. Keep PowerToys Grab And Move disabled to avoid Alt shortcut conflicts.
 
+<<<<<<< HEAD
+=======
+GlazeWM uses modal shortcuts inspired by Vim and i3. Normal operation reserves `Alt+H/J/K/L` for focus, `Alt+1` through `Alt+9` for workspaces, and
+`Alt+Shift+;` (Alt plus colon on a US keyboard) for command mode, plus `Alt+M` to minimize and `Alt+Q` to close. The YAML names
+the punctuation key `oem_semicolon`. Release modifiers before pressing mode keys.
+
+| Command sequence | Action |
+| --- | --- |
+| `Alt+Shift+;`, then `h` | Exit command mode and open the [HTML shortcut guide](config/glazewm/help.html) in the system default browser. |
+| `Alt+Shift+;`, then `m` | Move mode: `h/j/k/l` move the window; `Shift+h/j/k/l` move the workspace to the display left/down/up/right; `1–9` move the window to a workspace and follow it while staying in Move. |
+| `Alt+Shift+;`, then `r` | Adjust mode: resize and change window states. Stay active until Escape or Enter. |
+| In Move: `v` | Toggle the split around the focused tile. Prepare the destination tile, then move an existing window into it with `h/j/k/l`. |
+| `Alt+Shift+;`, then `a`, then `r` | Reload configuration and exit. |
+| `Alt+Shift+;`, then `a`, then `p` | Pause management; stay in admin mode, press `p` again to resume, then exit. |
+
+`Alt+H/J/K/L` changes focus and `Alt+1–9` switches workspaces in every mode while management is active. `Alt+M` minimizes and `Alt+Q` closes in every mode.
+`Escape` or `Enter` exits any mode when management is active. Move and Adjust
+modes persist for repeated adjustments; exit before typing in an application.
+The entry shortcut returns from a submode to command mode, or closes command
+mode if already there. While paused, use `p` to resume before using other keys.
+
+App shortcuts such as `Alt+Enter`, `Alt+Arrow`, `Alt+Shift+D`, `Alt+Shift+F`,
+and PowerToys Run's `Alt+Space` are left available. `Alt+H/J/K/L` and workspace
+numbers are deliberately reserved for GlazeWM. Reload after editing or pulling
+configuration updates. Keep the checkout in a stable location.
+>>>>>>> f184701111dd04a2b009d825dea014231ef46626
 ### Zebar
 
 Zebar provides a compact overview of workspaces and system status on each monitor. The Neosoft-based bar shows the current mode, workspaces, clock, battery, and device controls, with colors that follow the Windows theme. Fullscreen applications cover the bar until you return to the desktop. See the [setup guide](config/zebar/neosoft/README.md) for installation and customization.
