@@ -33,6 +33,13 @@ if ($Action -eq 'status') {
     if (-not (Test-Path -LiteralPath $recordPath)) { throw 'Neosoft pack has not been installed. Run -Action install.' }
     $record = Get-Content $recordPath -Raw | ConvertFrom-Json
     if ($record.revision -ne $pin.revision) { throw 'Installed upstream revision differs from dotfiles.' }
+    $installedConfig = Join-Path $packRoot 'zpack.json'
+    $expectedConfig = Join-Path $custom 'zpack.json'
+    if (-not (Test-Path -LiteralPath $installedConfig -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $installedConfig -Algorithm SHA256).Hash -ne
+        (Get-FileHash -LiteralPath $expectedConfig -Algorithm SHA256).Hash) {
+        throw 'Installed widget configuration differs from dotfiles. Run -Action install and restart Zebar.'
+    }
     Write-Output "OK $packRoot (Neosoft $($record.revision))"
     return
 }
