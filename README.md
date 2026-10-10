@@ -154,6 +154,21 @@ App shortcuts such as `Alt+Enter`, `Alt+Arrow`, `Alt+Shift+D`, `Alt+Shift+F`,
 and PowerToys Run's `Alt+Space` are left available. `Alt+H/J/K/L` and workspace
 numbers are deliberately reserved for GlazeWM. Reload after editing or pulling
 configuration updates. Keep the checkout in a stable location.
+
+Focus follows the cursor, including across monitors and empty workspaces, so
+new managed windows use the workspace on the cursor's monitor. GlazeWM does not
+jump the cursor when focus changes. Floating windows can still be centered;
+the configuration does not assign them a width or height. GlazeWM 3.9.1 also
+has an internal floating-size clamp with no configuration switch. Use targeted
+`ignore` rules for apps whose native window sizes must be preserved, accepting
+that GlazeWM no longer manages their placement or workspace membership.
+Standard Windows dialogs and File Explorer copy/move/delete progress windows
+are ignored, preserving their native size and position.
+Alt shortcuts run native GlazeWM commands directly in every mode; they do not
+launch a shell or helper per press. Keep PowerToys Grab And Move disabled when
+using these bindings: its Alt interception caused the first shortcut press to
+be missed, and disabling it resolved the issue.
+
 ### Zebar
 
 `config/zebar/settings.json` is connected to `$HOME/.glzr/zebar/settings.json`
