@@ -132,12 +132,29 @@ comes next. The current config starts Zebar, so install it too for the starter b
 .\scripts\glazewm.ps1 -Action restore -Manifest '<glazewm-manifest-path>'
 ```
 
-Edit the repository YAML, then press `Alt+Shift+R` to reload GlazeWM.
-The starter bindings use `Alt+H/J/K/L` or arrows to focus, add Shift to move,
-`Alt+1` through `Alt+9` to switch workspaces, `Alt+R` for resize mode,
-and `Alt+Shift+P` to pause/resume management. `Alt+Enter` currently opens CMD.
-Reload after pulling configuration updates. Keep the checkout in a stable location.
+GlazeWM uses modal shortcuts inspired by Vim and i3. Normal operation reserves
+only `Alt+H/J/K/L` for focus, `Alt+1` through `Alt+9` for workspaces, and
+`Alt+Shift+;` (Alt plus colon on a US keyboard) for command mode. The YAML names
+the punctuation key `oem_semicolon`. Release modifiers before pressing mode keys.
 
+| Command sequence | Action |
+| --- | --- |
+| `Alt+Shift+;`, then `m` | Move mode: `h/j/k/l` move the window; `1–9` move it to a workspace, follow it, and exit. |
+| `Alt+Shift+;`, then `r` | Resize mode: `h/l` decrease/increase width; `j/k` decrease/increase height by 2%. |
+| `Alt+Shift+;`, then `l`, then `v` | Toggle tiling direction and exit. |
+| `Alt+Shift+;`, then `s` | Window state: `t` sets tiled, `f` toggles fullscreen, `Space` toggles floating; each exits. |
+| `Alt+Shift+;`, then `a`, then `r` | Reload configuration and exit. |
+| `Alt+Shift+;`, then `a`, then `p` | Pause management; stay in admin mode, press `p` again to resume, then exit. |
+
+`Escape` or `Enter` exits any mode when management is active. Move and resize
+modes persist for repeated adjustments; exit before typing in an application.
+The entry shortcut returns from a submode to command mode, or closes command
+mode if already there. While paused, use `p` to resume before using other keys.
+
+App shortcuts such as `Alt+Enter`, `Alt+Arrow`, `Alt+Shift+D`, `Alt+Shift+F`,
+and PowerToys Run's `Alt+Space` are left available. `Alt+H/J/K/L` and workspace
+numbers are deliberately reserved for GlazeWM. Reload after editing or pulling
+configuration updates. Keep the checkout in a stable location.
 ### Zebar
 
 `config/zebar/settings.json` is connected to `$HOME/.glzr/zebar/settings.json`
