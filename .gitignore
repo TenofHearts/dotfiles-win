@@ -1,3 +1,10 @@
 # Private overrides and local verification output
 *.local.ps1
 .test-output/
+
+# GlazeWM runtime output (the live directory points here)
+config/glazewm/*.log
+
+# Zebar machine-local marketplace registration and runtime output
+config/zebar/.marketplace/
+config/zebar/*.log

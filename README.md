@@ -1,6 +1,6 @@
 # dotfiles-win
 
-Personal Windows configuration for PowerShell, Oh My Posh, Neovim, Git, and Windows Terminal. Settings stay in this repository so they are easy to track and reuse across machines.
+Personal Windows configuration for PowerShell, Oh My Posh, Neovim, Git, Windows Terminal, GlazeWM, and Zebar. Settings stay in this repository so they are easy to track and reuse across machines.
 
 ## Quick start
 
@@ -17,7 +17,7 @@ cd dotfiles
 . $PROFILE.CurrentUserCurrentHost  # Reload the shell profile
 ```
 
-Use `-SkipNvim`, `-SkipGit`, or `-SkipTerminal` to omit those applications. For a shell-only installation, use all three switches. Start `nvim` to let it download its plugins and tools. Keep the checkout in a stable location, since the installed configurations reference it directly.
+Use `-SkipNvim`, `-SkipGit`, `-SkipTerminal`, `-SkipGlazeWM`, or `-SkipZebar` to omit those applications. For a shell-only installation, use all five switches. Start `nvim` to let it download its plugins and tools. Keep the checkout in a stable location, since the installed configurations reference it directly.
 
 ## Structure
 
@@ -28,12 +28,16 @@ dotfiles/
 |   |-- links.ps1               # Manage the PowerShell profile loader
 |   |-- nvim.ps1                # Manage the Neovim directory junction
 |   |-- git.ps1                 # Include shared Git preferences
+|   |-- zebar.ps1               # Manage the Zebar settings file symlink
+|   |-- glazewm.ps1             # Manage the GlazeWM config file symlink
 |   `-- terminal.ps1            # Merge shared Terminal preferences
 |-- config/
 |   |-- powershell/             # Shell profile and command shortcuts
 |   |-- oh-my-posh/             # Prompt theme
 |   |-- nvim/                   # Neovim configuration (Git submodule)
 |   |-- git/                    # Shared Git config and global ignores
+|   |-- zebar/                  # Zebar settings (no downloaded packs)
+|   |-- glazewm/                # Live GlazeWM configuration
 |   `-- windows-terminal/       # Shared appearance and shortcuts
 `-- .gitmodules                 # Submodule source
 ```
@@ -45,21 +49,23 @@ dotfiles/
 | `install.ps1` | Set up all configurations. | `.\install.ps1` |
 | `scripts/links.ps1` | Install, check, or restore the PowerShell profile loader. | `.\scripts\links.ps1 -Action status` |
 | `scripts/nvim.ps1` | Install, check, or restore the Neovim junction. | `.\scripts\nvim.ps1 -Action status` |
+| `scripts/zebar.ps1` | Install, check, or restore the Zebar settings symlink. | `.\scripts\zebar.ps1 -Action status` |
+| `scripts/glazewm.ps1` | Install, check, or restore the GlazeWM config symlink. | `.\scripts\glazewm.ps1 -Action status` |
 | `scripts/git.ps1` | Install or check the Git include. | `.\scripts\git.ps1 -Action install` |
 | `scripts/terminal.ps1` | Apply or check Terminal preferences. | `.\scripts\terminal.ps1 -Action apply` |
 
 The application helpers accept `-Action install` and `-Action status` (the default). Terminal also accepts `-Action apply`, equivalent to `install`. Add `-DryRun` to preview changes. Terminal previews list the shared properties that would change. Git and Terminal apply updates directly without keeping backups.
 
-PowerShell and Neovim also support `-Action restore`; their installation prints a backup manifest path. To restore, use the matching helper and manifest:
+PowerShell, Neovim, GlazeWM, and Zebar also support `-Action restore`; their installation prints a backup manifest path. To restore, use the matching helper and manifest:
 
 ```powershell
 .\scripts\links.ps1 -Action restore -Manifest '<profile-manifest-path>'
 .\scripts\nvim.ps1 -Action restore -Manifest '<nvim-manifest-path>'
 ```
 
-PowerShell/Neovim restore refuses to replace a configuration connection that has been changed since installation. Their manifests are stored under `$HOME/.local/state/dotfiles-win` by default. PowerShell backups live there too; Neovim backups sit beside the original configuration directory.
+PowerShell/Neovim/GlazeWM/Zebar restore refuses to replace a configuration connection that has been changed since installation. Their manifests are stored under `$HOME/.local/state/dotfiles-win` by default. PowerShell backups live there too; Neovim, GlazeWM, and Zebar backups sit beside the original configuration path.
 
-For custom locations, `install.ps1` accepts `-ProfilePath`, `-NvimPath`, `-GitPath`, `-TerminalPath`, and `-StatePath`. The helpers use `-ProfilePath` or `-ConfigPath`; `-StatePath` applies only to PowerShell/Neovim. Terminal detects existing Store, Preview, and unpackaged settings; specify its path if multiple installations exist or you use portable mode.
+For custom locations, `install.ps1` accepts `-ProfilePath`, `-NvimPath`, `-GlazeWMPath`, `-ZebarPath`, `-GitPath`, `-TerminalPath`, and `-StatePath`. The helpers use `-ProfilePath` or `-ConfigPath`; `-StatePath` applies only to PowerShell/Neovim/GlazeWM/Zebar. Terminal detects existing Store, Preview, and unpackaged settings; specify its path if multiple installations exist or you use portable mode.
 
 ## Configuration overview
 
@@ -108,3 +114,47 @@ git submodule update --init --recursive
 Git reads shared configuration changes immediately; Terminal preferences need to be reapplied after pulling. Reload PowerShell or restart Neovim after configuration changes. If you edit the Neovim submodule, commit and push its changes first, then commit the updated submodule reference in this repository.
 
 Run `./tests/configs.ps1` to verify Git and Terminal installation, local overrides, merges, and repeat runs. It uses isolated fixtures under `.test-output` and removes them after success.
+
+### GlazeWM
+
+`config/glazewm/config.yaml` is linked to `$HOME/.glzr/glazewm/config.yaml`
+with a file symlink. Only the YAML is shared; the surrounding directory and runtime
+logs stay local. `-GlazeWMPath` takes a config file path. Install GlazeWM separately.
+File symlink creation requires Windows Developer Mode or an elevated PowerShell
+session. Existing config files are preserved in timestamped sibling backups with
+restore manifests. The imported settings are unchanged; workflow customization
+comes next. The current config starts Zebar, so install it too for the starter bar.
+```powershell
+.\scripts\glazewm.ps1 -Action install -DryRun
+.\scripts\glazewm.ps1 -Action install
+.\scripts\glazewm.ps1 -Action status
+# Restore using the manifest printed during installation:
+.\scripts\glazewm.ps1 -Action restore -Manifest '<glazewm-manifest-path>'
+```
+
+Edit the repository YAML, then press `Alt+Shift+R` to reload GlazeWM.
+The starter bindings use `Alt+H/J/K/L` or arrows to focus, add Shift to move,
+`Alt+1` through `Alt+9` to switch workspaces, `Alt+R` for resize mode,
+and `Alt+Shift+P` to pause/resume management. `Alt+Enter` currently opens CMD.
+Reload after pulling configuration updates. Keep the checkout in a stable location.
+
+### Zebar
+
+`config/zebar/settings.json` is connected to `$HOME/.glzr/zebar/settings.json`
+with a file symlink. Edits through either path affect the same file. The surrounding
+Zebar directory, marketplace registration, and downloaded packs stay local.
+`-ZebarPath` takes a settings file path. File symlink creation requires an elevated
+PowerShell session or Windows Developer Mode. Existing settings are preserved in
+a timestamped sibling backup with a restore manifest.
+
+```powershell
+.\scripts\zebar.ps1 -Action install -DryRun
+.\scripts\zebar.ps1 -Action install
+.\scripts\zebar.ps1 -Action status
+.\scripts\zebar.ps1 -Action restore -Manifest '<zebar-manifest-path>'
+```
+
+Restart Zebar after editing or pulling settings; no reapplication is needed.
+The current settings select the `glzr-io.starter` pack's `with-glazewm` widget and
+`default` preset. On another machine, install that pack through Zebar's marketplace;
+setup does not download it. Keep the checkout in a stable location.
