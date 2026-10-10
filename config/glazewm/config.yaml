@@ -141,6 +141,13 @@ window_rules:
       - window_title: { regex: '[Pp]icture.in.[Pp]icture' }
         window_class: { regex: 'Chrome_WidgetWin_1|MozillaDialogClass' }
 
+      # Ignores WeChat mini-program windows, keeping the main chat managed.
+      - window_process: { regex: '(?i)^WeChatAppEx$' }
+        window_class: { equals: 'Chrome_WidgetWin_0' }
+
+      # Ignores Internet Download Manager and its download dialogs.
+      - window_process: { equals: 'IDMan' }
+
       # Ignore rules for various 3rd-party apps.
       - window_process: { equals: 'PowerToys' }
         window_class: { regex: 'HwndWrapper\[PowerToys\.PowerAccent.*?\]' }
