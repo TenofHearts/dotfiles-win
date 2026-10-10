@@ -11,6 +11,9 @@ and volume, Wi-Fi, Bluetooth, battery and HH:mm on the right. Pills are 36px hig
 have 10px corner radii and slightly transparent backgrounds. The visible top edge is
 4px from the screen, with an 8px visible horizontal inset (4px window inset plus
 4px shadow padding). Width follows content.
+The pills use normal window ordering: fullscreen applications cover them on their
+monitor, and they reappear when fullscreen ends. Floating windows can also cover
+a pill when they overlap it.
 Selected workspaces on the focused monitor are blue; other monitors use gray.
 Wi-Fi and Bluetooth names appear only in their dropdowns. Battery is hidden when
 Windows does not report a battery. The Windows light/dark preference controls colors.

@@ -174,7 +174,8 @@ The compact bar reuses Neosoft's workspace, battery, volume and provider code.
 Three content-sized pills show mode at the left, assigned workspaces at the center,
 and clock, battery and compact volume/Wi-Fi/Bluetooth icons at the right on each
 monitor. Colors follow the Windows light/dark preference. Device and network names
-appear only in read-only dropdowns.
+appear only in read-only dropdowns. Fullscreen apps cover the bar on their monitor;
+it reappears when fullscreen ends.
 
 Install Node.js 22+ and build the pinned pack after cloning or pulling:
 
