@@ -147,6 +147,12 @@ window_rules:
       # Ignores any Zebar windows.
       - window_process: { equals: 'zebar' }
 
+      # Remote Desktop owns its fullscreen geometry and remote keyboard input.
+      - window_process: { equals: 'mstsc' }
+
+      # Keep Windows Settings outside workspace management.
+      - window_process: { equals: 'SystemSettings' }
+
       # Ignores picture-in-picture windows for browsers.
       - window_title: { regex: '[Pp]icture.in.[Pp]icture' }
         window_class: { regex: 'Chrome_WidgetWin_1|MozillaDialogClass' }
@@ -383,6 +389,8 @@ binding_modes:
         bindings: ['alt+9']
       - commands: ['wm-disable-binding-mode --name admin', 'wm-reload-config']
         bindings: ['r']
+      - commands: ['wm-disable-binding-mode --name admin', 'wm-redraw']
+        bindings: ['d']
       # Stay in admin mode while paused: p resumes, then Escape/Enter exits.
       - commands: ['wm-toggle-pause']
         bindings: ['p']
