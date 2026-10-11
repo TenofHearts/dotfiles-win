@@ -40,7 +40,12 @@
                     "style": "diamond",
                     "template": " on {{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }}   {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }} ",
                     "trailing_diamond": "",
-                    "type": "git"
+                    "type": "git",
+                    "background_templates": [
+                        "{{ if or (.Working.Changed) (.Staging.Changed) }}#f2cdcd{{ end }}",
+                        "{{ if gt .Ahead 0 }}#b4befe{{ end }}",
+                        "{{ if gt .Behind 0 }}#eba0ac{{ end }}"
+                    ]
                 },
                 {
                     "type": "docker",
