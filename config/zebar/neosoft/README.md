@@ -8,7 +8,7 @@ the three-window layout, system theme styling and read-only dropdowns.
 
 Each monitor gets a mode pill on the left, its assigned workspaces in the middle,
 and volume, Wi-Fi, Bluetooth, battery and HH:mm on the right. Pills are 36px high,
-have 10px corner radii and slightly transparent backgrounds. The visible top edge is
+have 10px corner radii and backgrounds at 60% opacity. The visible top edge is
 4px from the screen, with an 8px visible horizontal inset (4px window inset plus
 4px shadow padding). Width follows content.
 The pills use normal window ordering: fullscreen applications cover them on their
