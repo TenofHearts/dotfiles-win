@@ -113,3 +113,7 @@ function cgrr {
 function cga {
     cargo add @args
 }
+
+function gwm {
+    glazewm @args
+}
