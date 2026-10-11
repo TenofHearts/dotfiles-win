@@ -171,6 +171,10 @@ window_rules:
       - window_process: { equals: 'IDMan' }
 
       # Ignore rules for various 3rd-party apps.
+      # Command Palette is a launcher, not a workspace window.
+      - window_process: { equals: 'Microsoft.CmdPal.UI' }
+      - window_title: { equals: 'Command Palette' }
+        window_class: { equals: 'WinUIDesktopWin32WindowClass' }
       - window_process: { equals: 'PowerToys' }
         window_class: { regex: 'HwndWrapper\[PowerToys\.PowerAccent.*?\]' }
       - window_process: { equals: 'PowerToys' }

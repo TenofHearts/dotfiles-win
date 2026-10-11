@@ -7,6 +7,8 @@ if ($Listen) {
     $mutex = [Threading.Mutex]::new($true, 'Local\dotfiles-glazewm-join', [ref]$created)
     if (-not $created) { $mutex.Dispose(); return }
     try {
+        Add-Type -Path (Join-Path $PSScriptRoot 'workspace-focus.cs') -ReferencedAssemblies System.Windows.Forms, System.Web.Extensions, System, System.Core
+        [WorkspaceFocusGuard]::Start((Join-Path (Split-Path $PSScriptRoot -Parent) 'workspace-focus-error.log'))
         while ($true) {
             $pipe = [IO.Pipes.NamedPipeServerStream]::new('dotfiles-glazewm-join', [IO.Pipes.PipeDirection]::In)
             try {
