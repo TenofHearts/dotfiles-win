@@ -117,7 +117,7 @@ Run `./tests/configs.ps1` to verify Git and Terminal installation, local overrid
 
 ### GlazeWM
 
-GlazeWM organizes windows through modal shortcuts inspired by Vim and i3. Everyday shortcuts handle focus and workspaces, while dedicated modes handle moving, joining, and resizing windows. Focus follows the cursor across monitors, and system dialogs keep their native behavior. See the [shortcut guide](config/glazewm/help.html) for controls. Keep PowerToys Grab And Move disabled to avoid Alt shortcut conflicts.
+GlazeWM organizes windows through modal shortcuts inspired by Vim and i3. Everyday shortcuts handle focus and workspaces, while dedicated modes handle moving, joining, and resizing windows. Moving the mouse does not change focus. New managed windows open in the focused workspace; system dialogs keep their native behavior. See the [shortcut guide](config/glazewm/help.html) for controls. Keep PowerToys Grab And Move disabled to avoid Alt shortcut conflicts.
 
 ### Zebar
 

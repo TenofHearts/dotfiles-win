@@ -13,8 +13,8 @@ general:
   # Commands to run after the WM config is reloaded.
   config_reload_commands: []
 
-  # Follow the cursor's monitor/workspace so new managed apps open there.
-  focus_follows_cursor: true
+  # Focus changes only through clicks or keyboard commands.
+  focus_follows_cursor: false
 
   # Whether to switch back and forth between the previously focused
   # workspace when focusing the current workspace.
