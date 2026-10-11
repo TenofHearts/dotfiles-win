@@ -4,14 +4,20 @@ general:
   # Example: The below command launches Zebar.
   startup_commands:
     - >-
+      shell-exec --hide-window powershell.exe -NoProfile -NonInteractive -Command "$config = Get-Item -LiteralPath (Join-Path $env:USERPROFILE '.glzr/glazewm/config.yaml'); $target = if ($config.LinkType -eq 'SymbolicLink') { [string]$config.Target } else { $config.FullName }; & (Join-Path (Split-Path $target -Parent) 'scripts/join.ps1') -Listen"
+    - >-
       shell-exec --hide-window powershell.exe -NoProfile -NonInteractive -Command "$env:Path += ';' + [Environment]::GetEnvironmentVariable('Path','User') + ';' + [Environment]::GetEnvironmentVariable('Path','Machine'); $zebar = (Get-Command zebar.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source; Start-Process -FilePath $zebar -WindowStyle Hidden -ArgumentList 'startup'"
 
   # Commands to run just before the WM is shutdown.
   # Example: The below command kills Zebar.
-  shutdown_commands: ['shell-exec taskkill /IM zebar.exe /F']
+  shutdown_commands:
+    - 'shell-exec --hide-window cmd.exe /d /c "echo stop>\\.\pipe\dotfiles-glazewm-join"'
+    - 'shell-exec taskkill /IM zebar.exe /F'
 
   # Commands to run after the WM config is reloaded.
-  config_reload_commands: []
+  config_reload_commands:
+    - >-
+      shell-exec --hide-window powershell.exe -NoProfile -NonInteractive -Command "$config = Get-Item -LiteralPath (Join-Path $env:USERPROFILE '.glzr/glazewm/config.yaml'); $target = if ($config.LinkType -eq 'SymbolicLink') { [string]$config.Target } else { $config.FullName }; & (Join-Path (Split-Path $target -Parent) 'scripts/join.ps1') -Listen"
 
   # Focus changes only through clicks or keyboard commands.
   focus_follows_cursor: false
@@ -276,7 +282,7 @@ binding_modes:
         bindings: ['shift+k']
       - commands: ['move-workspace --direction right']
         bindings: ['shift+l']
-      - commands: ['toggle-tiling-direction']
+      - commands: ['wm-enable-binding-mode --name join']
         bindings: ['v']
       - commands: ['move --workspace 1', 'focus --workspace 1']
         bindings: ['1']
@@ -300,6 +306,33 @@ binding_modes:
         bindings: ['escape', 'enter']
       - commands: ['wm-disable-binding-mode --name move', 'wm-enable-binding-mode --name command']
         bindings: ['alt+shift+oem_semicolon']
+
+  # Only a direction or Escape is handled while waiting to join.
+  - name: 'join'
+    display_name: 'Join'
+    keybindings:
+      - commands:
+          - 'wm-enable-binding-mode --name move'
+          - >-
+            shell-exec --hide-window cmd.exe /d /c "echo left>\\.\pipe\dotfiles-glazewm-join"
+        bindings: ['h']
+      - commands:
+          - 'wm-enable-binding-mode --name move'
+          - >-
+            shell-exec --hide-window cmd.exe /d /c "echo down>\\.\pipe\dotfiles-glazewm-join"
+        bindings: ['j']
+      - commands:
+          - 'wm-enable-binding-mode --name move'
+          - >-
+            shell-exec --hide-window cmd.exe /d /c "echo up>\\.\pipe\dotfiles-glazewm-join"
+        bindings: ['k']
+      - commands:
+          - 'wm-enable-binding-mode --name move'
+          - >-
+            shell-exec --hide-window cmd.exe /d /c "echo right>\\.\pipe\dotfiles-glazewm-join"
+        bindings: ['l']
+      - commands: ['wm-enable-binding-mode --name move']
+        bindings: ['escape']
 
   - name: 'adjust'
     display_name: 'Adjust'
