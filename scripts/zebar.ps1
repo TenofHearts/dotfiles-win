@@ -4,11 +4,12 @@ param(
     [string]$ConfigPath = (Join-Path $HOME '.glzr/zebar/settings.json'),
     [string]$StatePath = (Join-Path $HOME '.local/state/dotfiles-win'),
     [string]$Manifest,
-    [string]$BuildPath = (Join-Path (Split-Path $PSScriptRoot -Parent) '.test-output/neosoft-build'),
+    [string]$BuildPath,
     [string]$PackPath,
     [switch]$DryRun
 )
 $ErrorActionPreference = 'Stop'
+if (-not $BuildPath) { $BuildPath = Join-Path (Split-Path $PSScriptRoot -Parent) '.test-output/neosoft-build' }
 $source = [IO.Path]::GetFullPath((Join-Path (Split-Path $PSScriptRoot -Parent) 'config/zebar/settings.json'))
 $destination = [IO.Path]::GetFullPath($ConfigPath)
 function Invoke-NeosoftPack {
@@ -16,7 +17,7 @@ function Invoke-NeosoftPack {
     param(
         [ValidateSet('build', 'install', 'status')][string]$Action = 'status',
         [string]$BuildPath = (Join-Path (Split-Path $PSScriptRoot -Parent) '.test-output/neosoft-build'),
-        [string]$PackPath = (Join-Path $HOME '.glzr/zebar/dotfiles-neosoft'),
+        [Parameter(Mandatory)][string]$PackPath,
         [switch]$DryRun
     )
     $ErrorActionPreference = 'Stop'

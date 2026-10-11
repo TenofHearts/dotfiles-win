@@ -29,3 +29,7 @@ html,body { margin:0; background:transparent; font-family:var(--font-family);col
 .workspace-chip.displayed button {color:var(--ink)!important;background:var(--chip)!important;} .workspace-chip.focused button {color:var(--blue)!important;background:color-mix(in srgb,var(--blue) 17%,transparent)!important;} .workspace-chip button:hover {background:var(--chip)!important;}
 .dropdown {width:300px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:0 2px 4px rgba(0,0,0,.12);overflow:auto;max-height:350px;}
 .dropdown.closed {display:none;} .dropdown h2 {font-size:14px;font-weight:600;margin:0 0 3px;} .dropdown p {font-size:12px;margin:0 0 8px;} .detail-row {display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:12px;} .detail-row span:first-child {overflow-wrap:anywhere;}
+
+.mode .pill {box-sizing:border-box;}
+.mode-dot,.mode-label,.mode .separator {flex-shrink:0;}
+.window-title {min-width:0;overflow:hidden;text-overflow:ellipsis;}

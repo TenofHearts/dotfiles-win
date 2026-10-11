@@ -2,7 +2,9 @@ general:
   # Commands to run when the WM has started. This is useful for running a
   # script or launching another application.
   # Example: The below command launches Zebar.
-  startup_commands: ['shell-exec zebar']
+  startup_commands:
+    - >-
+      shell-exec --hide-window powershell.exe -NoProfile -NonInteractive -Command "$env:Path += ';' + [Environment]::GetEnvironmentVariable('Path','User') + ';' + [Environment]::GetEnvironmentVariable('Path','Machine'); $zebar = (Get-Command zebar.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source; Start-Process -FilePath $zebar -WindowStyle Hidden -ArgumentList 'startup'"
 
   # Commands to run just before the WM is shutdown.
   # Example: The below command kills Zebar.

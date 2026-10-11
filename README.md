@@ -147,4 +147,10 @@ configuration updates. Keep the checkout in a stable location.
 >>>>>>> f184701111dd04a2b009d825dea014231ef46626
 ### Zebar
 
+Zebar settings default to the current user’s `~/.glzr/zebar` directory.
+GlazeWM resolves `zebar.exe` using the device’s PATH, including persisted user
+and machine entries when its process PATH is stale. Custom executable locations
+belong in the local PATH; settings remain in Zebar’s default user directory. Use `-ZebarPath` or the helper’s `-ConfigPath` to override
+the settings location on an individual device.
+
 Zebar provides a compact overview of workspaces and system status on each monitor. The Neosoft-based bar shows the current mode, workspaces, clock, battery, and device controls, with colors that follow the Windows theme. Fullscreen applications cover the bar until you return to the desktop. See the [setup guide](config/zebar/neosoft/README.md) for installation and customization.

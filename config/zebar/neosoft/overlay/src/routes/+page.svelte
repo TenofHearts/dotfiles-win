@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { LogicalSize, PhysicalPosition } from '@tauri-apps/api/window';
   import { invoke } from '@tauri-apps/api/core';
   import { currentWidget, shellExec } from 'zebar';
@@ -13,6 +13,7 @@
   import BluetoothOff from '@lucide/svelte/icons/bluetooth-off';
 
   let section = $state('mode');
+  let maxPillWidth = $state(560);
   let popup = $state('');
   let error = $state('');
   let connection = $state<{wifi: string[], bluetooth: string[], wifiError?: string, bluetoothError?: string} | null>(null);
@@ -22,6 +23,21 @@
   let resize = () => {};
   let wm = $derived(providers.glazewm);
   let mode = $derived(!wm ? 'GlazeWM offline' : wm.isPaused ? 'Paused' : wm.bindingModes.map(m => m.displayName ?? m.name).join(' · ') || 'Normal');
+  let focusedWindow = $derived(wm?.focusedContainer?.type === 'window' ? wm.focusedContainer : null);
+  let fullWindowTitle = $derived(focusedWindow?.title.trim() || focusedWindow?.processName || '');
+  let windowTitle = $derived.by(() => {
+    if (!focusedWindow) return '';
+    const title = fullWindowTitle;
+    // VS Code includes the active file before its workspace and app name.
+    if (/^code(?: - insiders)?$/i.test(focusedWindow.processName)) {
+      const app = title.match(/Visual Studio Code(?: - Insiders)?$/)?.[0];
+      if (app) {
+        const context = title.slice(0, -app.length).replace(/ - $/, '').split(' - ').pop();
+        return context ? context + ' - ' + app : app;
+      }
+    }
+    return title;
+  });
   let audio = $derived(providers.audio);
   let clock = $derived(providers.date?.new.toLocaleTimeString(undefined, {hour:'2-digit',minute:'2-digit',hour12:false}) ?? '—');
 
@@ -44,7 +60,7 @@
     preview = new URLSearchParams(location.search).has('preview');
     if (preview) {
       section = new URLSearchParams(location.search).get('section') || section;
-      Object.assign(providers, {glazewm: {isPaused:false,bindingModes:[{name:'move',displayName:'Move'}],currentMonitor:{hasFocus:true},currentWorkspaces:[{id:'1',name:'1',isDisplayed:false},{id:'2',name:'2',isDisplayed:true},{id:'3',name:'3',isDisplayed:false}],allWorkspaces:[{id:'1'},{id:'2'},{id:'3'}],runCommand:()=>{}},date:{new:new Date(2026,9,10,14,36)},battery:{state:'charging',chargePercent:82},audio:{defaultPlaybackDevice:{name:'Speakers',volume:40,isMuted:false},playbackDevices:[{name:'Speakers',volume:40,isMuted:false}]}});
+      Object.assign(providers, {glazewm: {isPaused:false,bindingModes:[{name:'move',displayName:'Move'}],focusedContainer:{type:'window',title:'dotfiles — Visual Studio Code',processName:'Code'},currentMonitor:{hasFocus:true},currentWorkspaces:[{id:'1',name:'1',isDisplayed:false},{id:'2',name:'2',isDisplayed:true},{id:'3',name:'3',isDisplayed:false}],allWorkspaces:[{id:'1'},{id:'2'},{id:'3'}],runCommand:()=>{}},date:{new:new Date(2026,9,10,14,36)},battery:{state:'charging',chargePercent:82},audio:{defaultPlaybackDevice:{name:'Speakers',volume:40,isMuted:false},playbackDevices:[{name:'Speakers',volume:40,isMuted:false}]}});
       connection = {wifi:['Studio WiFi'],bluetooth:['Wireless headphones','Keyboard']};
       return;
     }
@@ -61,6 +77,9 @@
       const monitor = await invoke<{size:{width:number,height:number},position:{x:number,y:number},scaleFactor:number} | null>('plugin:window|current_monitor');
       if (!monitor || disposed) return;
       const scale = monitor.scaleFactor;
+      maxPillWidth = Math.min(560, Math.floor(monitor.size.width / scale * 0.35));
+      await tick();
+      if (disposed) return;
       const barWidth = Math.ceil(pill.getBoundingClientRect().width);
       const edgeInset = 4; // Plus 4px of internal shadow padding: visible edge is 8px in.
       const width = Math.min(monitor.size.width / scale - edgeInset*2, Math.max(barWidth, popup && panel ? Math.ceil(panel.getBoundingClientRect().width) : 0) + 8);
@@ -85,14 +104,15 @@
     resize();
     return () => { disposed=true; observer.disconnect();clearInterval(geometryTimer);if(connectionTimer)clearInterval(connectionTimer);void unlisten.then(stop=>stop()); };
   });
-  $effect(() => { popup; mode; clock; connection; resize(); });
+  $effect(() => { popup; mode; windowTitle; clock; connection; resize(); });
 </script>
 
 <svelte:window onkeydown={(e) => {if(e.key==='Escape')popup='';}} onpointerdown={(e) => {if(popup && !(e.target as HTMLElement).closest('.info-button,.dropdown'))popup='';}} />
 <div class="pill-wrap {section}">
-  <div class="pill" bind:this={pill}>
+  <div class="pill" style:max-width={section === 'mode' ? `${maxPillWidth}px` : undefined} bind:this={pill}>
     {#if section === 'mode'}
       <span class="mode-dot" class:active={mode !== 'Normal'}></span><span class="mode-label">{mode}</span>
+      {#if windowTitle}<span class="separator"></span><span class="window-title" title={fullWindowTitle}>{windowTitle}</span>{/if}
     {:else if section === 'workspaces'}
       <Workspaces />
     {:else}

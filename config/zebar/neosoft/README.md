@@ -6,7 +6,7 @@ volume state/icons, provider wiring, configuration loader and build system are
 reused. `patch-upstream.mjs` makes checked source adaptations; `overlay/` provides
 the three-window layout, system theme styling and read-only dropdowns.
 
-Each monitor gets a mode pill on the left, its assigned workspaces in the middle,
+Each monitor gets a mode and focused-window title pill on the left, its assigned workspaces in the middle,
 and volume, Wi-Fi, Bluetooth, battery and HH:mm on the right. Pills are 36px high,
 have 10px corner radii and backgrounds at 60% opacity. The visible top edge is
 4px from the screen, with an 8px visible horizontal inset (4px window inset plus
@@ -14,6 +14,11 @@ have 10px corner radii and backgrounds at 60% opacity. The visible top edge is
 The pills use normal window ordering: fullscreen applications cover them on their
 monitor, and they reappear when fullscreen ends. Floating windows can also cover
 a pill when they overlap it.
+The left pill shows the globally focused window title, using the process name
+for untitled windows. VS Code shows just the workspace and app name, omitting the
+active filename. Long labels are truncated, with the full title available
+on hover; empty workspaces show only the mode. Its width is capped to keep the
+centered workspace pill clear.
 Selected workspaces on the focused monitor are blue; other monitors use gray.
 Wi-Fi and Bluetooth names appear only in their dropdowns. Battery is hidden when
 Windows does not report a battery. The Windows light/dark preference controls colors.
