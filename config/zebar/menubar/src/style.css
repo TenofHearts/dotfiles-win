@@ -323,7 +323,7 @@ body::before {
     right: 0;
     height: 28px;
     pointer-events: none;
-    background: rgba(var(--bar-rgb), .45);
+    background: rgba(var(--bar-rgb), .4);
 }
 
 .pill-wrap.menubar {
