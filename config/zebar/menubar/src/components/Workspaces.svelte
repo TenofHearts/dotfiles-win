@@ -2,7 +2,7 @@
   import { providers } from '../providers.svelte';
   let wm = $derived(providers.glazewm);
   async function focus(name: string) {
-    try { await wm?.runCommand(`focus --workspace ${JSON.stringify(name)}`); }
+    try { await wm?.runCommand(`focus --workspace ${name}`); }
     catch (error) { console.error('Workspace focus failed:', error); }
   }
 </script>
