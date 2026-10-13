@@ -1,0 +1,50 @@
+{
+  "$schema": "https://github.com/glzr-io/zebar/raw/v3.1.1/resources/zpack-schema.json",
+  "name": "dotfiles-menubar",
+  "version": "1.0.0",
+  "description": "Slim system-themed menu bar with a fading background",
+  "widgets": [
+    {
+      "shownInTaskbar": false,
+      "htmlPath": "./index.html",
+      "resizable": false,
+      "presets": [
+        {
+          "height": "28px",
+          "offsetY": "0px",
+          "dockToEdge": {
+            "enabled": false,
+            "windowMargin": "0px",
+            "edge": "top"
+          },
+          "offsetX": "0px",
+          "width": "100%",
+          "name": "default",
+          "monitorSelection": {
+            "type": "all"
+          },
+          "anchor": "top_left"
+        }
+      ],
+      "privileges": {
+        "shellCommands": [
+          {
+            "program": "powershell.exe",
+            "argsRegex": "^-NoProfile -NonInteractive -ExecutionPolicy Bypass -File .*connection-info\\.ps1$"
+          }
+        ]
+      },
+      "zOrder": "normal",
+      "focused": false,
+      "name": "menubar",
+      "includeFiles": [
+        "**"
+      ],
+      "transparent": true,
+      "caching": {
+        "defaultDuration": 0,
+        "rules": []
+      }
+    }
+  ]
+}

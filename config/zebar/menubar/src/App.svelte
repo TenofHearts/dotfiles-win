@@ -1,26 +1,25 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { LogicalSize, PhysicalPosition } from '@tauri-apps/api/window';
-  import { invoke } from '@tauri-apps/api/core';
+  import { LogicalSize } from '@tauri-apps/api/window';
   import { currentWidget, shellExec } from 'zebar';
-  import { initProviders, providers } from '$lib/providers.svelte';
-  import Workspaces from '../components/Workspaces.svelte';
-  import Battery from '../components/Battery.svelte';
-  import VolumeControl from '../components/VolumeControl/VolumeControl.svelte';
+  import { initProviders, providers } from './providers.svelte';
+  import { createResizeQueue } from './resize-queue.mjs';
+  import Workspaces from './components/Workspaces.svelte';
+  import Battery from './components/Battery.svelte';
+  import VolumeControl from './components/VolumeControl.svelte';
   import Wifi from '@lucide/svelte/icons/wifi';
   import WifiOff from '@lucide/svelte/icons/wifi-off';
   import Bluetooth from '@lucide/svelte/icons/bluetooth';
   import BluetoothOff from '@lucide/svelte/icons/bluetooth-off';
 
-  let section = $state('mode');
-  let maxPillWidth = $state(560);
   let popup = $state('');
   let error = $state('');
   let connection = $state<{wifi: string[], bluetooth: string[], wifiError?: string, bluetoothError?: string} | null>(null);
-  let pill: HTMLDivElement;
   let panel: HTMLDivElement;
   let preview = false;
   let resize = () => {};
+  let connectionBusy = false;
+  let disposed = false;
   let wm = $derived(providers.glazewm);
   let mode = $derived(!wm ? 'GlazeWM offline' : wm.isPaused ? 'Paused' : wm.bindingModes.map(m => m.displayName ?? m.name).join(' · ') || 'Normal');
   let focusedWindow = $derived(wm?.focusedContainer?.type === 'window' ? wm.focusedContainer : null);
@@ -43,84 +42,77 @@
 
   async function toggle(name: string) {
     popup = popup === name ? '' : name;
-    if (popup && !preview) await currentWidget().tauriWindow.setFocus();
+    if (popup && !preview) {
+      try { await currentWidget().tauriWindow.setFocus(); }
+      catch (e) { console.error('Cannot focus dropdown:', e); }
+    }
   }
   async function refreshConnections() {
+    if (connectionBusy || disposed) return;
+    connectionBusy = true;
     try {
       const widget = currentWidget();
       const folder = widget.htmlPath.replace(/[\\/][^\\/]+$/, '');
       const result = await shellExec('powershell.exe', ['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File', folder + '/connection-info.ps1']);
       if (result.code !== 0) throw new Error(result.stderr || 'Connection query failed');
+      if (disposed) return;
       connection = JSON.parse(result.stdout.replace(/^\uFEFF/, ''));
       error = '';
-    } catch (e) { connection = null; error = String(e); }
+    } catch (e) { if (!disposed) { connection = null; error = String(e); } }
+    finally { connectionBusy = false; }
   }
   onMount(() => {
-    section = location.pathname.split('/').pop()?.replace('.html','') || 'mode';
     preview = new URLSearchParams(location.search).has('preview');
     if (preview) {
-      section = new URLSearchParams(location.search).get('section') || section;
       Object.assign(providers, {glazewm: {isPaused:false,bindingModes:[{name:'move',displayName:'Move'}],focusedContainer:{type:'window',title:'dotfiles — Visual Studio Code',processName:'Code'},currentMonitor:{hasFocus:true},currentWorkspaces:[{id:'1',name:'1',isDisplayed:false},{id:'2',name:'2',isDisplayed:true},{id:'3',name:'3',isDisplayed:false}],allWorkspaces:[{id:'1'},{id:'2'},{id:'3'}],runCommand:()=>{}},date:{new:new Date(2026,9,10,14,36)},battery:{state:'charging',chargePercent:82},audio:{defaultPlaybackDevice:{name:'Speakers',volume:40,isMuted:false},playbackDevices:[{name:'Speakers',volume:40,isMuted:false}]}});
       connection = {wifi:['Studio WiFi'],bluetooth:['Wireless headphones','Keyboard']};
       return;
     }
-    section = currentWidget().name;
-    initProviders();
+    const stopProviders = initProviders();
     const win = currentWidget().tauriWindow;
-    let disposed = false;
     let scheduled = false;
-    let lastSize = '';
+    const sizes = createResizeQueue(async (height: number) => {
+      // Width and placement belong to Zebar's 100%-width monitor preset.
+      // Read the current logical width only when a dropdown needs more height.
+      await win.setSize(new LogicalSize(window.innerWidth, height));
+    });
     const fit = async () => {
-      scheduled = false;
-      if (disposed || !pill) return;
-      // Older Zebar builds omit workArea, which newer Tauri's monitor wrapper requires.
-      const monitor = await invoke<{size:{width:number,height:number},position:{x:number,y:number},scaleFactor:number} | null>('plugin:window|current_monitor');
-      if (!monitor || disposed) return;
-      const scale = monitor.scaleFactor;
-      maxPillWidth = Math.min(560, Math.floor(monitor.size.width / scale * 0.35));
       await tick();
+      scheduled = false;
       if (disposed) return;
-      const barWidth = Math.ceil(pill.getBoundingClientRect().width);
-      const edgeInset = 4; // Plus 4px of internal shadow padding: visible edge is 8px in.
-      const width = Math.min(monitor.size.width / scale - edgeInset*2, Math.max(barWidth, popup && panel ? Math.ceil(panel.getBoundingClientRect().width) : 0) + 8);
-      const height = popup && panel ? Math.ceil(panel.getBoundingClientRect().bottom) + 4 : 44;
-      const key = `${width},${height},${monitor.position.x},${monitor.position.y},${scale}`;
-      if (key === lastSize) return;
-      lastSize = key;
-      await win.setSize(new LogicalSize(width,height));
-      // Keep the screen-facing edge fixed, including when a dropdown widens the window.
-      const x = section === 'mode' ? monitor.position.x + edgeInset*scale : section === 'workspaces' ? monitor.position.x + (monitor.size.width-width*scale)/2 : monitor.position.x + monitor.size.width - (width+edgeInset)*scale;
-      // The transparent window has 4px internal padding; its visible pill starts at y+4px.
-      await win.setPosition(new PhysicalPosition(Math.round(x), monitor.position.y));
+      const height = popup && panel ? Math.ceil(panel.getBoundingClientRect().bottom) + 8 : 28;
+      await sizes.request(height);
     };
     resize = () => { if (!scheduled && !disposed) { scheduled = true; requestAnimationFrame(() => { void fit().catch(console.error); }); } };
     const observer = new ResizeObserver(resize);
-    observer.observe(pill);
     if (panel) observer.observe(panel);
     const unlisten = win.onFocusChanged(({payload}) => { if (!payload) popup = ''; });
-    const geometryTimer = setInterval(resize,2000);
-    let connectionTimer: ReturnType<typeof setInterval> | undefined;
-    if (section === 'status') { void refreshConnections(); connectionTimer = setInterval(refreshConnections,20000); }
-    resize();
-    return () => { disposed=true; observer.disconnect();clearInterval(geometryTimer);if(connectionTimer)clearInterval(connectionTimer);void unlisten.then(stop=>stop()); };
+    void refreshConnections();
+    const connectionTimer = setInterval(refreshConnections,20000);
+    return () => {
+      disposed=true; sizes.dispose(); observer.disconnect(); clearInterval(connectionTimer);
+      stopProviders(); void unlisten.then(stop=>stop()).catch(console.error);
+    };
   });
-  $effect(() => { popup; mode; windowTitle; clock; connection; resize(); });
+  $effect(() => { popup; resize(); });
 </script>
 
 <svelte:window onkeydown={(e) => {if(e.key==='Escape')popup='';}} onpointerdown={(e) => {if(popup && !(e.target as HTMLElement).closest('.info-button,.dropdown'))popup='';}} />
-<div class="pill-wrap {section}">
-  <div class="pill" style:max-width={section === 'mode' ? `${maxPillWidth}px` : undefined} bind:this={pill}>
-    {#if section === 'mode'}
+<div class="pill-wrap menubar">
+  <div class="menu-row">
+    <div class="pill mode" style:max-width="min(560px, 35vw)">
       <span class="mode-dot" class:active={mode !== 'Normal'}></span><span class="mode-label">{mode}</span>
       {#if windowTitle}<span class="separator"></span><span class="window-title" title={fullWindowTitle}>{windowTitle}</span>{/if}
-    {:else if section === 'workspaces'}
+    </div>
+    <div class="pill workspaces">
       <Workspaces />
-    {:else}
-      <VolumeControl onclick={() => toggle('audio')} />
+    </div>
+    <div class="pill status">
+      <VolumeControl onclick={() => toggle('audio')} expanded={popup === 'audio'} />
       <button class="info-button" class:connected={!!connection?.wifi.length} aria-label="Wi-Fi information" aria-expanded={popup==='wifi'} onclick={() => toggle('wifi')}>{#if connection?.wifi.length}<Wifi />{:else}<WifiOff />{/if}</button>
       <button class="info-button" class:connected={!!connection?.bluetooth.length} aria-label="Bluetooth information" aria-expanded={popup==='bluetooth'} onclick={() => toggle('bluetooth')}>{#if connection?.bluetooth.length}<Bluetooth />{:else}<BluetoothOff />{/if}</button>
       <span class="separator"></span><span class="battery"><Battery /></span><span class="separator"></span><span class="tabular clock">{clock}</span>
-    {/if}
+    </div>
   </div>
   <div bind:this={panel} class="dropdown" class:closed={!popup} role="region" aria-label={`${popup} information`}>
     {#if popup}

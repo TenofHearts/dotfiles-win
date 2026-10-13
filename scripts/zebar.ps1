@@ -9,97 +9,98 @@ param(
     [switch]$DryRun
 )
 $ErrorActionPreference = 'Stop'
-if (-not $BuildPath) { $BuildPath = Join-Path (Split-Path $PSScriptRoot -Parent) '.test-output/neosoft-build' }
+if (-not $BuildPath) { $BuildPath = Join-Path (Split-Path $PSScriptRoot -Parent) '.test-output/menubar-build' }
 $source = [IO.Path]::GetFullPath((Join-Path (Split-Path $PSScriptRoot -Parent) 'config/zebar/settings.json'))
 $destination = [IO.Path]::GetFullPath($ConfigPath)
-function Invoke-NeosoftPack {
-    [CmdletBinding()]
-    param(
-        [ValidateSet('build', 'install', 'status')][string]$Action = 'status',
-        [string]$BuildPath = (Join-Path (Split-Path $PSScriptRoot -Parent) '.test-output/neosoft-build'),
-        [Parameter(Mandatory)][string]$PackPath,
-        [switch]$DryRun
-    )
-    $ErrorActionPreference = 'Stop'
+function Invoke-MenubarPack {
+    param([string]$Action, [string]$BuildPath, [string]$PackPath, [switch]$DryRun)
     $repo = Split-Path $PSScriptRoot -Parent
-    $custom = Join-Path $repo 'config/zebar/neosoft'
-    $pin = Get-Content (Join-Path $custom 'upstream.json') -Raw | ConvertFrom-Json
-    $buildRoot = [IO.Path]::GetFullPath($BuildPath)
-    $packRoot = [IO.Path]::GetFullPath($PackPath)
-    $source = Join-Path $buildRoot "neosoft-zebar-$($pin.revision)"
-    if ($packRoot -ieq $repo -or $repo.StartsWith($packRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Pack destination cannot contain the dotfiles repository.' }
-    if ((Test-Path -LiteralPath $packRoot) -and -not (Test-Path -LiteralPath (Join-Path $packRoot 'dotfiles-build.json'))) { throw 'Refusing to replace an unrelated directory; choose a new pack destination.' }
-    if ($Action -eq 'status') {
-        $recordPath = Join-Path $packRoot 'dotfiles-build.json'
-        if (-not (Test-Path -LiteralPath $recordPath)) { throw 'Neosoft pack has not been installed. Run -Action install.' }
-        $record = Get-Content $recordPath -Raw | ConvertFrom-Json
-        if ($record.revision -ne $pin.revision) { throw 'Installed upstream revision differs from dotfiles.' }
-        $installedConfig = Join-Path $packRoot 'zpack.json'
-        $expectedConfig = Join-Path $custom 'zpack.json'
-        if (-not (Test-Path -LiteralPath $installedConfig -PathType Leaf) -or
-            (Get-FileHash -LiteralPath $installedConfig -Algorithm SHA256).Hash -ne
-            (Get-FileHash -LiteralPath $expectedConfig -Algorithm SHA256).Hash) {
-            throw 'Installed widget configuration differs from dotfiles. Run -Action install and restart Zebar.'
+    $custom = Join-Path $repo 'config/zebar/menubar'
+    $buildRoot = [IO.Path]::GetFullPath($BuildPath).TrimEnd('\')
+    $packRoot = [IO.Path]::GetFullPath($PackPath).TrimEnd('\')
+    foreach ($target in @($buildRoot, $packRoot)) {
+        if ($target -ieq $repo -or $repo.StartsWith($target + '\', [StringComparison]::OrdinalIgnoreCase) -or
+            $target.StartsWith($custom + '\', [StringComparison]::OrdinalIgnoreCase) -or $target -ieq $custom) {
+            throw 'Build and pack destinations must not overlap the source directory or contain the repository.'
         }
-        Write-Output "OK $packRoot (Neosoft $($record.revision))"
+    }
+    if ($packRoot -ieq $buildRoot -or $buildRoot.StartsWith($packRoot + '\', [StringComparison]::OrdinalIgnoreCase) -or
+        $packRoot.StartsWith($buildRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Build and pack directories must not overlap.' }
+    $inputs = @(Get-ChildItem -LiteralPath $custom -Recurse -File | Where-Object { $_.FullName -notmatch '[\\/](node_modules|dist)[\\/]' } | Sort-Object FullName)
+    $fingerprint = ($inputs | ForEach-Object { $_.FullName.Substring($custom.Length) + ':' + (Get-FileHash $_.FullName -Algorithm SHA256).Hash }) -join "`n"
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { $sourceHash = [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($fingerprint))).Replace('-', '') }
+    finally { $sha.Dispose() }
+    $recordPath = Join-Path $packRoot 'dotfiles-build.json'
+    if (Test-Path -LiteralPath $packRoot) {
+        if (-not (Test-Path -LiteralPath $recordPath)) { throw 'Refusing to replace an unrelated pack directory.' }
+        $record = Get-Content $recordPath -Raw | ConvertFrom-Json
+        if ($record.pack -ne 'dotfiles-menubar') { throw 'Pack destination belongs to another widget.' }
+    }
+    if ($Action -eq 'status') {
+        if (-not (Test-Path $recordPath)) { throw 'Menu bar has not been installed. Run -Action install.' }
+        if ($record.sourceHash -ne $sourceHash) { throw 'Installed menu bar differs from source. Run -Action install.' }
+        foreach ($entry in $record.files.PSObject.Properties) {
+            $installed = Join-Path $packRoot $entry.Name
+            if (-not (Test-Path -LiteralPath $installed -PathType Leaf) -or (Get-FileHash $installed).Hash -ne $entry.Value) { throw "Installed file differs: $($entry.Name)" }
+        }
+        Write-Output "OK $packRoot (standalone menu bar)"
         return
     }
-    Write-Output "Build Neosoft $($pin.revision) with dotfiles adaptations"
-    if ($DryRun) { Write-Output "Build: $buildRoot; pack: $packRoot"; return }
-    # Work only in a dedicated build directory. Never delete a user supplied tree.
+    Write-Output "Build standalone menu bar: $buildRoot"
+    if ($DryRun) { Write-Output "Pack: $packRoot"; return }
     New-Item -ItemType Directory -Force -Path $buildRoot | Out-Null
-    $archive = Join-Path $buildRoot 'upstream.zip'
-    if (-not (Test-Path $archive) -or (Get-FileHash $archive -Algorithm SHA256).Hash -ine $pin.archiveSha256) {
-        Invoke-WebRequest "https://codeload.github.com/blaiyz/neosoft-zebar/zip/$($pin.revision)" -OutFile $archive
+    foreach ($name in @('package.json', 'package-lock.json', 'index.html', 'vite.config.ts', 'tsconfig.json', 'src', 'public')) {
+        Copy-Item -LiteralPath (Join-Path $custom $name) -Destination $buildRoot -Recurse -Force
     }
-    if ((Get-FileHash $archive -Algorithm SHA256).Hash -ine $pin.archiveSha256) { throw 'Upstream archive checksum mismatch.' }
-    Expand-Archive -LiteralPath $archive -DestinationPath $buildRoot -Force
-    & node (Join-Path $custom 'patch-upstream.mjs') $source
-    if ($LASTEXITCODE) { throw 'Neosoft adaptation failed.' }
-    Copy-Item -Path (Join-Path $custom 'overlay/*') -Destination $source -Recurse -Force
-    if (Test-Path (Join-Path $custom 'package-lock.json')) { Copy-Item (Join-Path $custom 'package-lock.json') (Join-Path $source 'package-lock.json') -Force }
-    Push-Location $source
+    Push-Location $buildRoot
     try {
         & npm.cmd ci --no-audit --no-fund
         if ($LASTEXITCODE) { throw 'Dependency installation failed.' }
         & npm.cmd run check
         if ($LASTEXITCODE) { throw 'Svelte validation failed.' }
+        & npm.cmd test
+        if ($LASTEXITCODE) { throw 'Menu bar tests failed.' }
         & npm.cmd run build
-        if ($LASTEXITCODE) { throw 'Neosoft build failed.' }
+        if ($LASTEXITCODE) { throw 'Menu bar build failed.' }
+    } finally { Pop-Location }
+    $output = Join-Path $buildRoot 'dist'
+    Copy-Item -LiteralPath (Join-Path $custom 'zpack.json') -Destination $output -Force
+    $hashes = [ordered]@{}
+    Get-ChildItem $output -Recurse -File | Where-Object Name -ne 'dotfiles-build.json' | ForEach-Object {
+        $hashes[$_.FullName.Substring($output.Length + 1)] = (Get-FileHash $_.FullName).Hash
     }
-    finally { Pop-Location }
-    $output = Join-Path $source 'build'
-    Copy-Item (Join-Path $custom 'zpack.json') (Join-Path $output 'zpack.json') -Force
-    Copy-Item (Join-Path $source 'LICENSE*') $output -Force
-    @{revision = $pin.revision; builtAt = [DateTime]::UtcNow.ToString('o') } | ConvertTo-Json | Set-Content (Join-Path $output 'dotfiles-build.json')
+    @{ pack = 'dotfiles-menubar'; sourceHash = $sourceHash; files = $hashes; builtAt = [DateTime]::UtcNow.ToString('o') } |
+        ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'dotfiles-build.json')
     if ($Action -eq 'build') { Write-Output "Built: $output"; return }
-    if ($packRoot -ieq $buildRoot -or $buildRoot.StartsWith($packRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Pack destination cannot contain the build directory.' }
+    # Verify both resolved paths before moving an existing directory to backup.
+    foreach ($target in @($packRoot, [IO.Path]::GetFullPath($StatePath))) {
+        $cursor = $target
+        while ($cursor) {
+            $item = Get-Item -LiteralPath $cursor -Force -ErrorAction SilentlyContinue
+            if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Linked pack/backup path needs review: $cursor" }
+            $cursor = Split-Path $cursor -Parent
+        }
+    }
+    $backupRoot = [IO.Path]::GetFullPath((Join-Path $StatePath 'backups')).TrimEnd('\')
+    $backup = Join-Path $backupRoot "menubar-$([DateTime]::Now.ToString('yyyyMMdd-HHmmss-fffffff'))"
+    if (-not $backup.StartsWith($backupRoot + '\', [StringComparison]::OrdinalIgnoreCase) -or
+        $backupRoot -ieq $packRoot -or $backupRoot.StartsWith($packRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Backup destination must be outside the pack directory.' }
     if (Test-Path -LiteralPath $packRoot) {
-        $item = Get-Item -LiteralPath $packRoot -Force
-        if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Refusing to replace a linked pack directory.' }
-        $backup = Join-Path $HOME ".local/state/dotfiles-win/backups/neosoft-$([DateTime]::Now.ToString('yyyyMMdd-HHmmss-fffffff'))"
-        New-Item -ItemType Directory -Force (Split-Path $backup -Parent) | Out-Null
+        New-Item -ItemType Directory -Force -Path $backupRoot | Out-Null
         Move-Item -LiteralPath $packRoot -Destination $backup
         Write-Output "Previous pack backup: $backup"
     }
-    try {
-        New-Item -ItemType Directory -Force -Path $packRoot | Out-Null
-        Copy-Item -Path (Join-Path $output '*') -Destination $packRoot -Recurse -Force
-    }
-    catch {
-        Write-Output 'Installation failed; the previous pack is preserved in its backup directory.'
-        throw
-    }
-    Write-Output "Installed: $packRoot. Restart Zebar to load the three pills."
-
+    New-Item -ItemType Directory -Force -Path $packRoot | Out-Null
+    Copy-Item -Path (Join-Path $output '*') -Destination $packRoot -Recurse -Force
+    Write-Output "Installed: $packRoot. Restart Zebar to load the menu bar."
 }
 
-if (-not $PackPath) { $PackPath = Join-Path (Split-Path $destination -Parent) 'dotfiles-neosoft' }
+if (-not $PackPath) { $PackPath = Join-Path (Split-Path $destination -Parent) 'dotfiles-menubar' }
 if ($Action -in @('install', 'status', 'build')) {
-    Invoke-NeosoftPack -Action $Action -BuildPath $BuildPath -PackPath $PackPath -DryRun:$DryRun
+    Invoke-MenubarPack -Action $Action -BuildPath $BuildPath -PackPath $PackPath -DryRun:$DryRun
     if ($Action -eq 'build') { return }
 }
-
 function Test-ZebarLink {
     param([string]$Path, [string]$Target)
     $item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
