@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
@@ -21,6 +22,12 @@ public static class WorkspaceFocusGuard
     [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
     [DllImport("user32.dll")] static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr window);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr window, StringBuilder text, int length);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr window, StringBuilder text, int length);
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW")] static extern int GetWindowStyle(IntPtr window, int index);
+    static readonly Dictionary<IntPtr, int> loginCandidates = new Dictionary<IntPtr, int>();
+    static System.Windows.Forms.Timer loginTimer;
 
     static Thread worker;
     static IntPtr palette;
@@ -45,11 +52,74 @@ public static class WorkspaceFocusGuard
     {
         callback = Observe;
         var foreground = SetWinEventHook(3, 3, IntPtr.Zero, callback, 0, 0, 0);
-        var hide = SetWinEventHook(0x8001, 0x8003, IntPtr.Zero, callback, 0, 0, 0);
+        var hide = SetWinEventHook(0x8000, 0x8003, IntPtr.Zero, callback, 0, 0, 0);
         restoreTimer = new System.Windows.Forms.Timer { Interval = 120 };
         restoreTimer.Tick += delegate { restoreTimer.Stop(); Restore(); };
+        loginTimer = new System.Windows.Forms.Timer { Interval = 200 };
+        loginTimer.Tick += delegate { IgnoreLoginCandidates(); };
+        // Inspect already managed windows once when this helper starts.
+        try {
+            foreach (var item in (object[])Request("query windows")["windows"])
+                QueueLogin(new IntPtr(Convert.ToInt64(Map(item)["handle"])));
+        } catch (Exception error) { Log(error); }
         try { Application.Run(); }
         finally { UnhookWinEvent(foreground); UnhookWinEvent(hide); }
+    }
+
+    static bool IsLoginWindowShape(string windowClass, string title, int style)
+    {
+        if (windowClass == "WeChatLoginWndForPC") return true;
+        return Regex.IsMatch(windowClass, @"^Qt[0-9]+QWindowIcon$") &&
+            (title == "微信" || title == "WeChat" || title == "Weixin") &&
+            style != 0 && (style & 0x00030000) == 0;
+    }
+
+    static bool IsWeChatLogin(IntPtr window)
+    {
+        uint pid;
+        GetWindowThreadProcessId(window, out pid);
+        try {
+            string process = Process.GetProcessById((int)pid).ProcessName;
+            if (!process.Equals("Weixin", StringComparison.OrdinalIgnoreCase) &&
+                !process.Equals("WeChat", StringComparison.OrdinalIgnoreCase)) return false;
+        } catch (ArgumentException) { return false; }
+        var name = new StringBuilder(256);
+        GetClassName(window, name, name.Capacity);
+        if (name.ToString() == "WeChatLoginWndForPC") return true;
+        if (!Regex.IsMatch(name.ToString(), @"^Qt[0-9]+QWindowIcon$")) return false;
+        var title = new StringBuilder(256);
+        GetWindowText(window, title, title.Capacity);
+        if (title.ToString() != "微信" && title.ToString() != "WeChat" && title.ToString() != "Weixin") return false;
+        int style = GetWindowStyle(window, -16);
+        // The observed login window has neither minimize nor maximize controls;
+        // the chat window has both, despite sharing the same title and class.
+        return IsLoginWindowShape(name.ToString(), title.ToString(), style);
+    }
+
+    static void QueueLogin(IntPtr window)
+    {
+        if (!IsWeChatLogin(window)) return;
+        loginCandidates[window] = 0;
+        loginTimer.Start();
+    }
+
+    static void IgnoreLoginCandidates()
+    {
+        try {
+            var windows = (object[])Request("query windows")["windows"];
+            foreach (var handle in new List<IntPtr>(loginCandidates.Keys)) {
+                bool done = !IsWeChatLogin(handle);
+                if (!done) foreach (var item in windows) {
+                    var window = Map(item);
+                    if (Convert.ToInt64(window["handle"]) != handle.ToInt64()) continue;
+                    Request("command --id " + window["id"] + " ignore");
+                    done = true;
+                    break;
+                }
+                if (done || ++loginCandidates[handle] >= 5) loginCandidates.Remove(handle);
+            }
+        } catch (Exception error) { Log(error); loginCandidates.Clear(); }
+        if (loginCandidates.Count == 0) loginTimer.Stop();
     }
 
     static bool UserIsSwitching()
@@ -66,6 +136,7 @@ public static class WorkspaceFocusGuard
         if (window == IntPtr.Zero) return;
         try
         {
+            if (eventType == 3 || ((eventType == 0x8000 || eventType == 0x8002) && objectId == 0)) QueueLogin(window);
             if (eventType == 3)
             {
                 uint process;

@@ -14,6 +14,8 @@ cd dotfiles
 . $PROFILE.CurrentUserCurrentHost
 ```
 
+Installers replace existing configurations without creating backups. Restore actions and the `-Manifest` and `-StatePath` options have been removed.
+
 Keep the checkout in a stable location. Add `-SkipNvim`, `-SkipGit`, `-SkipTerminal`, `-SkipGlazeWM`, or `-SkipZebar` to omit an application.
 
 ## Configurations
