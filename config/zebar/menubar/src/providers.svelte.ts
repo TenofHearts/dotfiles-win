@@ -12,7 +12,11 @@ export const providers = $state<ProviderGroup<typeof config>['outputMap']>({
 });
 
 export function initProviders() {
-  const group = createProviderGroup(config);
+  // Temporary RDP isolation test: Zebar 3.3.1's native audio callback reads
+  // a potentially null default-device ID. Keep the UI shape, but do not
+  // instantiate that provider until the connect/disconnect test is complete.
+  const { audio: _audio, ...diagnosticConfig } = config;
+  const group = createProviderGroup(diagnosticConfig);
   group.onOutput(output => Object.assign(providers, output));
   group.onError(errors => {
     Object.assign(providers, group.outputMap);
