@@ -38,6 +38,7 @@
     return title;
   });
   let audio = $derived(providers.audio);
+  let date = $derived(providers.date?.new.toLocaleDateString('en-US', {weekday:'short',month:'short',day:'numeric'}) ?? '—');
   let clock = $derived(providers.date?.new.toLocaleTimeString(undefined, {hour:'2-digit',minute:'2-digit',hour12:false}) ?? '—');
 
   async function toggle(name: string) {
@@ -111,7 +112,7 @@
       <VolumeControl onclick={() => toggle('audio')} expanded={popup === 'audio'} />
       <button class="info-button" class:connected={!!connection?.wifi.length} aria-label="Wi-Fi information" aria-expanded={popup==='wifi'} onclick={() => toggle('wifi')}>{#if connection?.wifi.length}<Wifi />{:else}<WifiOff />{/if}</button>
       <button class="info-button" class:connected={!!connection?.bluetooth.length} aria-label="Bluetooth information" aria-expanded={popup==='bluetooth'} onclick={() => toggle('bluetooth')}>{#if connection?.bluetooth.length}<Bluetooth />{:else}<BluetoothOff />{/if}</button>
-      <span class="separator"></span><span class="battery"><Battery /></span><span class="separator"></span><span class="tabular clock">{clock}</span>
+      <span class="separator"></span><span class="battery"><Battery /></span><span class="separator"></span><span class="tabular clock">{date} · {clock}</span>
     </div>
   </div>
   <div bind:this={panel} class="dropdown" class:closed={!popup} role="region" aria-label={`${popup} information`}>
