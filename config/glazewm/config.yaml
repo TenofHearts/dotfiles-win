@@ -227,7 +227,7 @@ binding_modes:
           - 'wm-disable-binding-mode --name command'
           - >-
             shell-exec --hide-window powershell.exe -NoProfile -NonInteractive -Command "$config = Get-Item -LiteralPath (Join-Path $env:USERPROFILE '.glzr/glazewm/config.yaml'); $target = if ($config.LinkType -eq 'SymbolicLink') { [string]$config.Target } else { $config.FullName }; Start-Process -FilePath (Join-Path (Split-Path $target -Parent) 'help.html')"
-        bindings: ['h']
+        bindings: ['shift+oem_question']
       - commands: ['wm-disable-binding-mode --name command', 'wm-enable-binding-mode --name move']
         bindings: ['m']
       - commands: ['wm-disable-binding-mode --name command', 'wm-enable-binding-mode --name adjust']
