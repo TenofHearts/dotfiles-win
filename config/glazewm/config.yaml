@@ -159,6 +159,8 @@ window_rules:
 
       # Keep Windows Settings outside workspace management.
       - window_process: { equals: 'SystemSettings' }
+      - window_process: { equals: 'ApplicationFrameHost' }
+        window_title: { regex: '^(Settings|设置)$' }
 
       # Ignores picture-in-picture windows for browsers.
       - window_title: { regex: '[Pp]icture.in.[Pp]icture' }
