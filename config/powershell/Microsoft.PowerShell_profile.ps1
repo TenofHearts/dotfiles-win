@@ -117,3 +117,5 @@ function cga {
 function gwm {
     glazewm @args
 }
+
+Invoke-Expression (& { (zoxide init powershell --cmd j | Out-String) })

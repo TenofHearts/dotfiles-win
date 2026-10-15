@@ -165,6 +165,10 @@ window_rules:
         window_class: { regex: 'Chrome_WidgetWin_1|MozillaDialogClass' }
 
       # Ignores WeChat mini-program windows, keeping the main chat managed.
+      # Older WeChat versions expose a distinct login class; ignore it immediately.
+      - window_process: { regex: '(?i)^(WeChat|Weixin)$' }
+        window_class: { equals: 'WeChatLoginWndForPC' }
+
       - window_process: { regex: '(?i)^WeChatAppEx$' }
         window_class: { equals: 'Chrome_WidgetWin_0' }
 
