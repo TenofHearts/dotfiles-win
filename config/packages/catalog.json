@@ -1,0 +1,176 @@
+{
+    "packages": [
+        {
+            "name": "PowerShell",
+            "group": "dotfiles",
+            "commands": [
+                "pwsh"
+            ],
+            "winget": "Microsoft.PowerShell",
+            "note": "Run the installer with PowerShell 7.3+."
+        },
+        {
+            "name": "Git",
+            "group": "dotfiles",
+            "commands": [
+                "git"
+            ],
+            "winget": "Git.Git"
+        },
+        {
+            "name": "Oh My Posh",
+            "group": "dotfiles",
+            "commands": [
+                "oh-my-posh"
+            ],
+            "winget": "JanDeDobbeleer.OhMyPosh"
+        },
+        {
+            "name": "Neovim",
+            "group": "dotfiles",
+            "commands": [
+                "nvim"
+            ],
+            "winget": "Neovim.Neovim",
+            "note": "This configuration requires Neovim 0.12+; check the version supplied by the package manager."
+        },
+        {
+            "name": "ripgrep",
+            "group": "dotfiles",
+            "commands": [
+                "rg"
+            ],
+            "winget": "BurntSushi.ripgrep.MSVC"
+        },
+        {
+            "name": "fd",
+            "group": "dotfiles",
+            "commands": [
+                "fd"
+            ],
+            "winget": "sharkdp.fd"
+        },
+        {
+            "name": "zoxide",
+            "group": "dotfiles",
+            "commands": [
+                "zoxide"
+            ],
+            "winget": "ajeetdsouza.zoxide"
+        },
+        {
+            "name": "fzf",
+            "group": "dotfiles",
+            "commands": [
+                "fzf"
+            ],
+            "winget": "junegunn.fzf"
+        },
+        {
+            "name": "fnm",
+            "group": "dotfiles",
+            "commands": [
+                "fnm"
+            ],
+            "winget": "Schniz.fnm",
+            "note": "Node.js/npm are managed separately by fnm; see packages.md."
+        },
+        {
+            "name": "Windows Terminal",
+            "group": "dotfiles",
+            "commands": [
+                "wt"
+            ],
+            "winget": "Microsoft.WindowsTerminal",
+            "appx": "Microsoft.WindowsTerminal"
+        },
+        {
+            "name": "GlazeWM",
+            "group": "dotfiles",
+            "commands": [
+                "glazewm"
+            ],
+            "winget": "glzr-io.glazewm"
+        },
+        {
+            "name": "Zebar",
+            "group": "dotfiles",
+            "commands": [
+                "zebar"
+            ],
+            "winget": "glzr-io.zebar",
+            "note": "Windows desktop configuration only; Node.js 22.12+ is required to build this bar."
+        },
+        {
+            "name": "0xProto Nerd Font",
+            "group": "dotfiles",
+            "commands": [],
+            "font": "0xProto Nerd Font",
+            "note": "On Windows, install manually from https://www.nerdfonts.com/font-downloads; no WinGet ID is assumed."
+        },
+        {
+            "name": "uv",
+            "group": "development",
+            "commands": [
+                "uv"
+            ],
+            "winget": "astral-sh.uv",
+            "note": "Use uv-managed Python instead of installing a second system Python alongside Conda."
+        },
+        {
+            "name": "Rustup",
+            "group": "development",
+            "commands": [
+                "rustup"
+            ],
+            "winget": "Rustlang.Rustup",
+            "note": "Rust toolchains/components require separate rustup commands; Windows MSVC also needs Visual Studio C++ Build Tools."
+        },
+        {
+            "name": "MinGW-w64 toolchain",
+            "group": "development",
+            "commands": [
+                "gcc",
+                "clang"
+            ],
+            "note": "Existing MinGW-w64 distribution supplies GCC/clang. Install the same toolchain manually; do not substitute the standalone LLVM package."
+        },
+        {
+            "name": "CMake",
+            "group": "development",
+            "commands": [
+                "cmake"
+            ],
+            "winget": "Kitware.CMake"
+        },
+        {
+            "name": "Ninja",
+            "group": "development",
+            "commands": [
+                "ninja"
+            ],
+            "winget": "Ninja-build.Ninja"
+        },
+        {
+            "name": "7-Zip",
+            "group": "development",
+            "commands": [
+                "7z",
+                "7zz"
+            ],
+            "winget": "7zip.7zip",
+            "uninstallName": "^7-Zip(?:\\s|$)",
+            "windowsPaths": [
+                "%ProgramFiles%\\7-Zip\\7z.exe"
+            ]
+        },
+        {
+            "name": "Typst",
+            "group": "development",
+            "commands": [
+                "typst"
+            ],
+            "winget": "Typst.Typst"
+        }
+    ]
+}

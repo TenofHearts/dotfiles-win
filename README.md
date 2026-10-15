@@ -6,6 +6,8 @@ Personal Windows configurations for PowerShell, Oh My Posh, Neovim, Git, Windows
 
 Use PowerShell 7.3+ and install the applications first. Zebar requires Node.js 22.12+ to build its bar. Neovim requires Neovim 0.12+, ripgrep, and fd. Install 0xProto Nerd Font and open Windows Terminal once before setup. GlazeWM and Zebar configuration links require Developer Mode or an elevated shell.
 
+Review the curated environment with `.\scripts\packages.ps1`. Add `-InstallMissing` to install missing tools, `-Upgrade` to update selected manager-owned tools, or `-DryRun` to preview either operation. Both installation and upgrades are opt-in. See [package setup](config/packages/packages.md) for groups, individual selections, the WinGet export, and runtime prerequisites.
+
 ```powershell
 git clone --recurse-submodules https://github.com/TenofHearts/dotfiles-win.git dotfiles
 cd dotfiles

@@ -1,0 +1,69 @@
+{
+    "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+    "Sources": [
+        {
+            "SourceDetails": {
+                "Name": "winget",
+                "Identifier": "Microsoft.Winget.Source_8wekyb3d8bbwe",
+                "Type": "Microsoft.PreIndexed.Package",
+                "Argument": "https://cdn.winget.microsoft.com/cache"
+            },
+            "Packages": [
+                {
+                    "PackageIdentifier": "Microsoft.PowerShell"
+                },
+                {
+                    "PackageIdentifier": "Git.Git"
+                },
+                {
+                    "PackageIdentifier": "JanDeDobbeleer.OhMyPosh"
+                },
+                {
+                    "PackageIdentifier": "Neovim.Neovim"
+                },
+                {
+                    "PackageIdentifier": "BurntSushi.ripgrep.MSVC"
+                },
+                {
+                    "PackageIdentifier": "sharkdp.fd"
+                },
+                {
+                    "PackageIdentifier": "ajeetdsouza.zoxide"
+                },
+                {
+                    "PackageIdentifier": "junegunn.fzf"
+                },
+                {
+                    "PackageIdentifier": "Schniz.fnm"
+                },
+                {
+                    "PackageIdentifier": "Microsoft.WindowsTerminal"
+                },
+                {
+                    "PackageIdentifier": "glzr-io.glazewm"
+                },
+                {
+                    "PackageIdentifier": "glzr-io.zebar"
+                },
+                {
+                    "PackageIdentifier": "astral-sh.uv"
+                },
+                {
+                    "PackageIdentifier": "Rustlang.Rustup"
+                },
+                {
+                    "PackageIdentifier": "Kitware.CMake"
+                },
+                {
+                    "PackageIdentifier": "Ninja-build.Ninja"
+                },
+                {
+                    "PackageIdentifier": "7zip.7zip"
+                },
+                {
+                    "PackageIdentifier": "Typst.Typst"
+                }
+            ]
+        }
+    ]
+}
