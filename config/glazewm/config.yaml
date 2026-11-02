@@ -164,13 +164,14 @@ window_rules:
       - window_title: { regex: '[Pp]icture.in.[Pp]icture' }
         window_class: { regex: 'Chrome_WidgetWin_1|MozillaDialogClass' }
 
-      # Ignores WeChat mini-program windows, keeping the main chat managed.
-      # Older WeChat versions expose a distinct login class; ignore it immediately.
+      # Keep the main WeChat title managed; ignore other titles (pictures, etc.).
+      # Mirrors dotfiles-apple/config/omniwm/settings.shared.toml title matching.
+      # Title matching cannot distinguish secondary windows sharing the main title.
       - window_process: { regex: '(?i)^(WeChat|Weixin)$' }
-        window_class: { equals: 'WeChatLoginWndForPC' }
+        window_title: { not_regex: '(?i)^(微信|WeChat|Weixin)$' }
 
+      # Ignore every mini-app window, regardless of its title or class.
       - window_process: { regex: '(?i)^WeChatAppEx$' }
-        window_class: { equals: 'Chrome_WidgetWin_0' }
 
       # Ignores Internet Download Manager and its download dialogs.
       - window_process: { equals: 'IDMan' }
