@@ -25,6 +25,12 @@ if (Get-Command fnm -ErrorAction SilentlyContinue) {
     fnm env --use-on-cd | Out-String | Invoke-Expression
 }
 
+# Shared Codex profile; machine-specific config.toml stays local.
+function codex {
+    $codexCommand = Get-Command codex -CommandType Application -ErrorAction Stop | Select-Object -First 1
+    & $codexCommand.Source --profile dotfiles @args
+}
+
 function ga {
     git add @args
 }

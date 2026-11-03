@@ -12,9 +12,14 @@ param(
     [string]$GlazeWMPath = (Join-Path $HOME '.glzr/glazewm/config.yaml'),
     [switch]$SkipGlazeWM,
     [string]$ZebarPath = (Join-Path $HOME '.glzr/zebar/settings.json'),
-    [switch]$SkipZebar
+    [switch]$SkipZebar,
+    [string]$CodexPath = (Join-Path $(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }) 'dotfiles.config.toml'),
+    [switch]$SkipCodex
 )
 $ErrorActionPreference = 'Stop'
+if (-not $SkipCodex) {
+    & "$PSScriptRoot/scripts/codex.ps1" -Action install -ConfigPath $CodexPath -DryRun:$DryRun
+}
 & "$PSScriptRoot/scripts/links.ps1" -Action install -ProfilePath $ProfilePath -DryRun:$DryRun
 if (-not $SkipNvim) {
     & "$PSScriptRoot/scripts/nvim.ps1" -Action install -ConfigPath $NvimPath -DryRun:$DryRun
