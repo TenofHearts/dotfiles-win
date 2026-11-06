@@ -1,6 +1,6 @@
 # dotfiles-win
 
-Personal Windows configurations for PowerShell, Oh My Posh, Neovim, Codex, Git, Windows Terminal, GlazeWM, and Zebar.
+Personal Windows configurations for PowerShell, Oh My Posh, Neovim, AI agents (currently Codex), Git, Windows Terminal, GlazeWM, and Zebar.
 
 ## Install
 
@@ -38,12 +38,13 @@ Reload PowerShell and restart Neovim, GlazeWM, and Zebar after loading their con
 
 ## Update
 
-Codex uses the same [configuration submodule](https://github.com/TenofHearts/codex-config) as [dotfiles](https://github.com/TenofHearts/dotfiles). The installer symlinks only `config/codex/dotfiles.config.toml` into `$env:CODEX_HOME` (or `$HOME/.codex` when unset), preserving local `config.toml`, credentials, sessions, and plugins. The link requires Developer Mode or an elevated shell. Use `-CodexPath` in `install.ps1` or `-ConfigPath` in `scripts/codex.ps1` to choose another destination file; `-Action status` verifies the link.
+Shared AI agent settings live in the `config/ai` [configuration submodule](https://github.com/TenofHearts/ai-config), with one directory per agent. It is also used by [dotfiles](https://github.com/TenofHearts/dotfiles). Currently, the Codex installer symlinks only `config/ai/codex/dotfiles.config.toml` into `$env:CODEX_HOME` (or `$HOME/.codex` when unset), preserving local `config.toml`, credentials, sessions, and plugins. The link requires Developer Mode or an elevated shell. Use `-CodexPath` in `install.ps1` or `-ConfigPath` in `scripts/codex.ps1` to choose another destination file; `-Action status` verifies the link. To repair a link from the previous layout, run `.\scripts\codex.ps1 -Action install`.
 
-Reload PowerShell to activate the `codex` function, which forwards arguments to the CLI with `--profile dotfiles`. Matching shared preferences override local settings. Invoke `codex.exe` directly to use local defaults. Restart Codex after updating the profile. Commit shared preference changes inside `config/codex` first, then update the parent repository's submodule reference.
+Reload PowerShell to activate the `codex` function, which forwards arguments to the CLI with `--profile dotfiles`. Matching shared preferences override local settings. Invoke `codex.exe` directly to use local defaults. Restart Codex after updating the profile. Commit shared preference changes inside `config/ai` first, then update the parent repository's submodule reference.
 
 ```powershell
 git pull
+git submodule sync --recursive
 git submodule update --init --recursive
 .\install.ps1
 . $PROFILE.CurrentUserCurrentHost

@@ -5,7 +5,7 @@ param(
     [switch]$DryRun
 )
 $ErrorActionPreference = 'Stop'
-$source = [IO.Path]::GetFullPath((Join-Path (Split-Path $PSScriptRoot -Parent) 'config/codex/dotfiles.config.toml'))
+$source = [IO.Path]::GetFullPath((Join-Path (Split-Path $PSScriptRoot -Parent) 'config/ai/codex/dotfiles.config.toml'))
 $destination = [IO.Path]::GetFullPath($ConfigPath)
 # CODEX_HOME (and ~/.codex) may itself be a deliberate directory junction.
 $codexHomePath = [IO.Path]::GetFullPath($(if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }))
@@ -29,7 +29,7 @@ if ($Action -eq 'status') {
     return
 }
 if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
-    throw 'Codex submodule missing. Run git submodule update --init --recursive.'
+    throw 'AI configuration submodule missing. Run git submodule update --init --recursive.'
 }
 if (Test-CodexLink $destination $source) { Write-Output 'Codex symlink is already installed.'; return }
 if ($destination -ieq $source -or $source.StartsWith($destination.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
@@ -38,7 +38,10 @@ if ($destination -ieq $source -or $source.StartsWith($destination.TrimEnd('\') +
 $cursor = $destination
 while ($cursor) {
     $item = Get-Item -LiteralPath $cursor -Force -ErrorAction SilentlyContinue
-    if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Linked path needs manual review: $cursor" }
+    if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -and
+        -not ($cursor -ieq $destination -and $item.LinkType -eq 'SymbolicLink' -and -not $item.PSIsContainer)) {
+        throw "Linked path needs manual review: $cursor"
+    }
     $cursor = Split-Path $cursor -Parent
 }
 if ((Test-Path -LiteralPath $destination) -and -not (Test-Path -LiteralPath $destination -PathType Leaf)) {
@@ -46,6 +49,6 @@ if ((Test-Path -LiteralPath $destination) -and -not (Test-Path -LiteralPath $des
 }
 Write-Output "Install Codex symlink: $destination -> $source"
 if ($DryRun) { return }
-if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Force }
+if (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue) { Remove-Item -LiteralPath $destination -Force }
 New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force | Out-Null
 New-Item -ItemType SymbolicLink -Path $destination -Target $source | Out-Null
