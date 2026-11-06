@@ -26,7 +26,7 @@ if (Get-Command fnm -ErrorAction SilentlyContinue) {
 }
 
 # Shared Codex profile; machine-specific config.toml stays local.
-function codex {
+function cx {
     $codexCommand = Get-Command codex -CommandType Application -ErrorAction Stop | Select-Object -First 1
     & $codexCommand.Source --profile dotfiles @args
 }
