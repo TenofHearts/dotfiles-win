@@ -16,7 +16,7 @@ cd dotfiles
 . $PROFILE.CurrentUserCurrentHost
 ```
 
-Installers replace existing configurations without creating backups. Restore actions and the `-Manifest` and `-StatePath` options have been removed.
+Installers skip existing target files, directories, and links by default. Add `-Force` (or `--force`) to update or replace them, for example `.\install.ps1 --force` or `.\scripts\codex.ps1 -Action install --force`. Use `-Force -DryRun` to preview updates. Forced updates do not create backups; Git and Windows Terminal retain their selective merge behavior. Zebar skips building when its target configuration already exists, and preserves an existing menu-bar pack unless forced. Restore actions and the `-Manifest` and `-StatePath` options have been removed.
 
 Keep the checkout in a stable location. Add `-SkipNvim`, `-SkipCodex`, `-SkipGit`, `-SkipTerminal`, `-SkipGlazeWM`, or `-SkipZebar` to omit an application.
 
@@ -38,15 +38,15 @@ Reload PowerShell and restart Neovim, GlazeWM, and Zebar after loading their con
 
 ## Update
 
-Shared AI agent settings live in the `config/ai` [configuration submodule](https://github.com/TenofHearts/ai-config), with one directory per agent. It is also used by [dotfiles](https://github.com/TenofHearts/dotfiles). Currently, the Codex installer symlinks only `config/ai/codex/dotfiles.config.toml` into `$env:CODEX_HOME` (or `$HOME/.codex` when unset), preserving local `config.toml`, credentials, sessions, and plugins. The link requires Developer Mode or an elevated shell. Use `-CodexPath` in `install.ps1` or `-ConfigPath` in `scripts/codex.ps1` to choose another destination file; `-Action status` verifies the link. To repair a link from the previous layout, run `.\scripts\codex.ps1 -Action install`.
+Shared AI agent settings live in the `config/ai` [configuration submodule](https://github.com/TenofHearts/ai-config), with one directory per agent. It is also used by [dotfiles](https://github.com/TenofHearts/dotfiles). Currently, the Codex installer symlinks only `config/ai/codex/dotfiles.config.toml` into `$env:CODEX_HOME` (or `$HOME/.codex` when unset), preserving local `config.toml`, credentials, sessions, and plugins. The link requires Developer Mode or an elevated shell. Use `-CodexPath` in `install.ps1` or `-ConfigPath` in `scripts/codex.ps1` to choose another destination file; `-Action status` verifies the link. To repair a link from the previous layout, run `.\scripts\codex.ps1 -Action install -Force`.
 
-Reload PowerShell to activate the `codex` function, which forwards arguments to the CLI with `--profile dotfiles`. Matching shared preferences override local settings. Invoke `codex.exe` directly to use local defaults. Restart Codex after updating the profile. Commit shared preference changes inside `config/ai` first, then update the parent repository's submodule reference.
+Reload PowerShell to activate the `cx` function, which forwards arguments to Codex with `--profile dotfiles`. Matching shared preferences override local settings. Invoke `codex` directly to use local defaults. Restart Codex after updating the profile. Commit shared preference changes inside `config/ai` first, then update the parent repository's submodule reference.
 
 ```powershell
 git pull
 git submodule sync --recursive
 git submodule update --init --recursive
-.\install.ps1
+.\install.ps1 -Force
 . $PROFILE.CurrentUserCurrentHost
 ```
 

@@ -30,9 +30,11 @@ $gitPath = "$fixture/gitconfig"
 $originalGit = "# local settings`r`n[user]`r`n name = Local User`r`n email = local@example.test`r`n[core]`r`n pager = cat`r`n[http]`r`n proxy = http://localhost:1234`r`n"
 [IO.File]::WriteAllText($gitPath, $originalGit, [Text.UTF8Encoding]::new($true))
 $originalHash = Hash $gitPath
-& "$fixture/scripts/git.ps1" -Action install -ConfigPath $gitPath -DryRun | Out-Null
+& "$fixture/scripts/git.ps1" -Action install -Force -ConfigPath $gitPath -DryRun | Out-Null
 Assert ((Hash $gitPath) -eq $originalHash) 'Git dry run changed files.'
 & "$fixture/scripts/git.ps1" -Action install -ConfigPath $gitPath | Out-Null
+Assert ((Hash $gitPath) -eq $originalHash) 'Git default install changed an existing file.'
+& "$fixture/scripts/git.ps1" -Action install -Force -ConfigPath $gitPath | Out-Null
 & "$fixture/scripts/git.ps1" -Action status -ConfigPath $gitPath | Out-Null
 Assert ([IO.File]::ReadAllText($gitPath).EndsWith($originalGit, [StringComparison]::Ordinal)) 'Original Git settings changed.'
 Assert ((git config --file $gitPath --includes --get user.name) -eq 'Local User') 'Git identity changed.'
@@ -40,23 +42,23 @@ Assert ((git config --file $gitPath --includes --get core.pager) -eq 'cat') 'Git
 Assert ((git config --file $gitPath --includes --get alias.st) -eq 'status -sb') 'Git include not active.'
 Assert ((git config --file $gitPath --includes --get core.excludesFile) -eq "$fixture/config/git/ignore".Replace('\', '/')) 'Git ignore path incorrect.'
 $installedHash = Hash $gitPath
-& "$fixture/scripts/git.ps1" -Action install -ConfigPath $gitPath | Out-Null
+& "$fixture/scripts/git.ps1" -Action install -Force -ConfigPath $gitPath | Out-Null
 Assert ((Hash $gitPath) -eq $installedHash) 'Git install is not idempotent.'
 $sharedHash = Hash "$fixture/config/git/config"
 git config --file $gitPath core.editor fixture-editor
 if ($LASTEXITCODE -ne 0) { throw 'Git CLI edit failed.' }
 Assert ((Hash "$fixture/config/git/config") -eq $sharedHash) 'Git CLI edit changed the tracked source.'
 $editedHash = Hash $gitPath
-& "$fixture/scripts/git.ps1" -Action install -ConfigPath $gitPath | Out-Null
+& "$fixture/scripts/git.ps1" -Action install -Force -ConfigPath $gitPath | Out-Null
 & "$fixture/scripts/git.ps1" -Action status -ConfigPath $gitPath | Out-Null
 Assert ((Hash $gitPath) -eq $editedHash -and (git config --file $gitPath --includes --get core.editor) -eq 'fixture-editor') 'Reinstallation lost a Git CLI edit.'
 git config --file "$fixture/config/git/config" alias.last 'log -1 --oneline'
 Assert ((git config --file $gitPath --includes --get alias.last) -eq 'log -1 --oneline') 'Shared Git edit did not take effect immediately.'
-Assert-Throws { & "$fixture/scripts/git.ps1" -Action install -ConfigPath "$fixture/config/git/config" } '*shared source*'
+Assert-Throws { & "$fixture/scripts/git.ps1" -Action install -Force -ConfigPath "$fixture/config/git/config" } '*shared source*'
 
 $emptyPath = [IO.Path]::GetFullPath("$fixture/empty-gitconfig")
 [IO.File]::WriteAllBytes($emptyPath, [byte[]]@())
-& "$fixture/scripts/git.ps1" -Action install -ConfigPath $emptyPath | Out-Null
+& "$fixture/scripts/git.ps1" -Action install -Force -ConfigPath $emptyPath | Out-Null
 Assert ((git config --file $emptyPath --includes --get alias.st) -eq 'status -sb') 'Empty file setup failed.'
 
 $ignoreRepo = "$fixture/ignore-check"
@@ -101,9 +103,11 @@ foreach ($distro in @('Ubuntu', 'Debian')) {
     $text = '// local settings' + "`r`n" + (($local | ConvertTo-Json -Depth 100) -replace '\}\s*$', ',}')
     [IO.File]::WriteAllText($terminalPath, $text)
     $originalHash = Hash $terminalPath
-    & "$fixture/scripts/terminal.ps1" -Action apply -ConfigPath $terminalPath -DryRun | Out-Null
+    & "$fixture/scripts/terminal.ps1" -Action apply -Force -ConfigPath $terminalPath -DryRun | Out-Null
     Assert ((Hash $terminalPath) -eq $originalHash) 'Terminal dry run changed file.'
     & "$fixture/scripts/terminal.ps1" -Action apply -ConfigPath $terminalPath | Out-Null
+    Assert ((Hash $terminalPath) -eq $originalHash) 'Terminal default apply changed an existing file.'
+    & "$fixture/scripts/terminal.ps1" -Action apply -Force -ConfigPath $terminalPath | Out-Null
     $merged = Get-Content $terminalPath -Raw | ConvertFrom-Json -AsHashtable
     Assert ($merged.defaultProfile -eq "local-$distro" -and $merged.profiles.list[0].commandline -eq "wsl.exe -d $distro") 'Local shell profile changed.'
     Assert ($merged.disabledProfileSources[0] -eq 'Windows.Terminal.Azure') 'Profile discovery configuration changed.'
@@ -114,13 +118,13 @@ foreach ($distro in @('Ubuntu', 'Debian')) {
     Assert (($merged.actions | Where-Object id -eq 'Local.find').keys -eq 'ctrl+f') 'Legacy multi-key action merge failed.'
     Assert ($merged.schemes.Count -eq 2 -and ($merged.schemes | Where-Object name -eq 'TestScheme').background -eq '#123456' -and $merged.themes.Count -eq 2) 'Named array merge failed.'
     $installedHash = Hash $terminalPath
-    & "$fixture/scripts/terminal.ps1" -Action apply -ConfigPath $terminalPath | Out-Null
+    & "$fixture/scripts/terminal.ps1" -Action apply -Force -ConfigPath $terminalPath | Out-Null
     & "$fixture/scripts/terminal.ps1" -Action status -ConfigPath $terminalPath | Out-Null
     Assert ((Hash $terminalPath) -eq $installedHash) 'Terminal merge is not idempotent.'
 }
 $shared.profiles.list = @(@{ name = 'Do not distribute' })
 $shared | ConvertTo-Json -Depth 100 | Set-Content "$fixture/config/windows-terminal/settings.json"
-Assert-Throws { & "$fixture/scripts/terminal.ps1" -Action apply -ConfigPath "$fixture/Ubuntu.json" } '*only a defaults*'
+Assert-Throws { & "$fixture/scripts/terminal.ps1" -Action apply -Force -ConfigPath "$fixture/Ubuntu.json" } '*only a defaults*'
 Assert (@(Get-ChildItem -LiteralPath $fixture -Recurse -Filter manifest.json).Count -eq 0) 'Unexpected backup manifest.'
 Assert (@(Get-ChildItem -LiteralPath $fixture -Recurse -Filter '*.tmp').Count -eq 0) 'Temporary files were not removed.'
 $resolvedFixture = (Resolve-Path -LiteralPath $fixture).Path

@@ -3,12 +3,23 @@
 param(
     [ValidateSet('install', 'status')][string]$Action = 'status',
     [string]$ProfilePath = $PROFILE.CurrentUserCurrentHost,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [Alias('-force')][switch]$Force,
+    [Parameter(ValueFromRemainingArguments)][string[]]$ExtraArguments
 )
 $ErrorActionPreference = 'Stop'
+foreach ($argument in $ExtraArguments) {
+    if ($argument -ine '--force') { throw "Unknown argument: $argument" }
+    $Force = $true
+}
 $root = Split-Path $PSScriptRoot -Parent
 $source = Join-Path $root 'config/powershell/Microsoft.PowerShell_profile.ps1'
 $destination = [IO.Path]::GetFullPath($ProfilePath)
+if ($Action -ne 'status' -and -not $Force -and
+    (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
+    Write-Output "SKIP existing target: $destination (use -Force to update)"
+    return
+}
 $escapedSource = $source.Replace("'", "''")
 $loader = "# Managed by dotfiles-win. Edit the configuration in the repository.`n. '$escapedSource'`n"
 

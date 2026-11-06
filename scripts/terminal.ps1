@@ -3,9 +3,15 @@
 param(
     [ValidateSet('install', 'apply', 'status')][string]$Action = 'status',
     [string]$ConfigPath,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [Alias('-force')][switch]$Force,
+    [Parameter(ValueFromRemainingArguments)][string[]]$ExtraArguments
 )
 $ErrorActionPreference = 'Stop'
+foreach ($argument in $ExtraArguments) {
+    if ($argument -ine '--force') { throw "Unknown argument: $argument" }
+    $Force = $true
+}
 if (-not $ConfigPath) {
     # Stable Store, Preview Store, and unpackaged installations. Never pick an
     # arbitrary installation when more than one has settings.
@@ -19,6 +25,12 @@ if (-not $ConfigPath) {
         throw 'Open Terminal once to create settings, or specify -ConfigPath (required for multiple installations or portable mode).'
     }
     $ConfigPath = @($candidates)[0]
+}
+$destination = [IO.Path]::GetFullPath($ConfigPath)
+if ($Action -ne 'status' -and -not $Force -and
+    (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
+    Write-Output "SKIP existing target: $destination (use -Force to update)"
+    return
 }
 $source = Join-Path (Split-Path $PSScriptRoot -Parent) 'config/windows-terminal/settings.json'
 $shared = Get-Content -LiteralPath $source -Raw | ConvertFrom-Json -AsHashtable
@@ -59,7 +71,6 @@ foreach ($spec in @(@('actions', 'id'), @('schemes', 'name'), @('themes', 'name'
         }
     }
 }
-$destination = [IO.Path]::GetFullPath($ConfigPath)
 if ($destination -ieq [IO.Path]::GetFullPath($source)) { throw 'Destination must not be the shared source file.' }
 $cursor = $destination
 while ($cursor) {

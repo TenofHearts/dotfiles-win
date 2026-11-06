@@ -2,11 +2,22 @@
 param(
     [ValidateSet('install', 'status')][string]$Action = 'status',
     [string]$ConfigPath = (Join-Path $env:LOCALAPPDATA 'nvim'),
-    [switch]$DryRun
+    [switch]$DryRun,
+    [Alias('-force')][switch]$Force,
+    [Parameter(ValueFromRemainingArguments)][string[]]$ExtraArguments
 )
 $ErrorActionPreference = 'Stop'
+foreach ($argument in $ExtraArguments) {
+    if ($argument -ine '--force') { throw "Unknown argument: $argument" }
+    $Force = $true
+}
 $source = [IO.Path]::GetFullPath((Join-Path (Split-Path $PSScriptRoot -Parent) 'config/nvim'))
 $destination = [IO.Path]::GetFullPath($ConfigPath)
+if ($Action -ne 'status' -and -not $Force -and
+    (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
+    Write-Output "SKIP existing target: $destination (use -Force to update)"
+    return
+}
 
 function Test-NvimLink {
     param([string]$Path, [string]$Target)

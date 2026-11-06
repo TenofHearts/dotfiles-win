@@ -3,9 +3,15 @@
 param(
     [ValidateSet('install', 'status')][string]$Action = 'status',
     [string]$ConfigPath = (Join-Path $HOME '.gitconfig'),
-    [switch]$DryRun
+    [switch]$DryRun,
+    [Alias('-force')][switch]$Force,
+    [Parameter(ValueFromRemainingArguments)][string[]]$ExtraArguments
 )
 $ErrorActionPreference = 'Stop'
+foreach ($argument in $ExtraArguments) {
+    if ($argument -ine '--force') { throw "Unknown argument: $argument" }
+    $Force = $true
+}
 $root = Split-Path $PSScriptRoot -Parent
 $source = [IO.Path]::GetFullPath((Join-Path $root 'config/git/config'))
 $ignore = [IO.Path]::GetFullPath((Join-Path $root 'config/git/ignore'))
@@ -13,6 +19,11 @@ foreach ($path in @($source, $ignore)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing source: $path" }
 }
 $destination = [IO.Path]::GetFullPath($ConfigPath)
+if ($Action -ne 'status' -and -not $Force -and
+    (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
+    Write-Output "SKIP existing target: $destination (use -Force to update)"
+    return
+}
 if ($destination -ieq $source -or $destination -ieq $ignore) { throw 'Destination must not be a shared source file.' }
 $cursor = $destination
 while ($cursor) {

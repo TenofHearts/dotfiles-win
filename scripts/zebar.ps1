@@ -4,14 +4,30 @@ param(
     [string]$ConfigPath = (Join-Path $HOME '.glzr/zebar/settings.json'),
     [string]$BuildPath,
     [string]$PackPath,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [Alias('-force')][switch]$Force,
+    [Parameter(ValueFromRemainingArguments)][string[]]$ExtraArguments
 )
 $ErrorActionPreference = 'Stop'
+foreach ($argument in $ExtraArguments) {
+    if ($argument -ine '--force') { throw "Unknown argument: $argument" }
+    $Force = $true
+}
 if (-not $BuildPath) { $BuildPath = Join-Path (Split-Path $PSScriptRoot -Parent) '.test-output/menubar-build' }
 $source = [IO.Path]::GetFullPath((Join-Path (Split-Path $PSScriptRoot -Parent) 'config/zebar/settings.json'))
 $destination = [IO.Path]::GetFullPath($ConfigPath)
+if ($Action -eq 'install' -and -not $Force -and
+    (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue)) {
+    Write-Output "SKIP existing target: $destination (use -Force to update)"
+    return
+}
 function Invoke-MenubarPack {
-    param([string]$Action, [string]$BuildPath, [string]$PackPath, [switch]$DryRun)
+    param([string]$Action, [string]$BuildPath, [string]$PackPath, [switch]$DryRun, [switch]$Force)
+    if ($Action -eq 'install' -and -not $Force -and
+        (Get-Item -LiteralPath $PackPath -Force -ErrorAction SilentlyContinue)) {
+        Write-Output "SKIP existing pack: $PackPath (use -Force to update)"
+        return
+    }
     $repo = Split-Path $PSScriptRoot -Parent
     $custom = Join-Path $repo 'config/zebar/menubar'
     $buildRoot = [IO.Path]::GetFullPath($BuildPath).TrimEnd('\')
@@ -88,7 +104,7 @@ function Invoke-MenubarPack {
 
 if (-not $PackPath) { $PackPath = Join-Path (Split-Path $destination -Parent) 'dotfiles-menubar' }
 if ($Action -in @('install', 'status', 'build')) {
-    Invoke-MenubarPack -Action $Action -BuildPath $BuildPath -PackPath $PackPath -DryRun:$DryRun
+    Invoke-MenubarPack -Action $Action -BuildPath $BuildPath -PackPath $PackPath -DryRun:$DryRun -Force:$Force
     if ($Action -eq 'build') { return }
 }
 function Test-ZebarLink {
